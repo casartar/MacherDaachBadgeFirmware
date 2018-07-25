@@ -1,0 +1,18 @@
+##############################################################
+
+macherDaachBadge.name = Macher Daach Badge (1 MHz internal clock)
+macherDaachBadge.upload.protocol=arduino
+macherDaachBadge.upload.maximum_size=30720
+macherDaachBadge.upload.speed=57600
+
+macherDaachBadge.bootloader.low_fuses=0x62
+macherDaachBadge.bootloader.high_fuses=0xDA
+macherDaachBadge.bootloader.extended_fuses=0xFE
+
+macherDaachBadge.build.mcu=atmega328p
+macherDaachBadge.build.f_cpu=1000000L
+macherDaachBadge.build.board=ARDUINO_AVR_ATMEGA328BB
+macherDaachBadge.build.core=arduino:arduino
+macherDaachBadge.build.variant=arduino:standard
+
+macherDaachBadge.upload.tool=arduino:avrdude
