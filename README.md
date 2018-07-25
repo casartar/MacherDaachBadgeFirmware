@@ -1,20 +1,21 @@
 # MacherDaachBadgeFirmware
-##Verbinden des Arduinos mit dem Badge
 
-###ISP Pinheader (6 polig)
+## Verbinden des Arduinos mit dem Badge
+
+### ISP Pinheader (6 polig)
 Pin 1 des Steckers ist markiert. Wenn der Badge vor einem liegt oben rechts.
 
-.        | .
--------- | --------
-1 - MISO | 2 - VCC (5V)
-3 - Reset| 4 - MOSI
-5 - SCK  | 6 - GND
+```
+MISO  - 1  2 - VCC (5V)
+Reset - 3  4 - MOSI
+SCK   - 5  6 - GND
+```
 
 **!! Achtung !!**
 Der Pinheader entspricht im Moment nicht dem Standard.
 Reset und SCK sind vertauscht. Die Tabelle entspricht der aktuellen Hardware. Die beiden Pins werden jedoch in der nächsten Revision getauscht.
 
-###Verkableung
+### Verkabelung
 
 Badge    | Farbe    | Arduino
 -------- | -------- | --------
@@ -28,20 +29,22 @@ ISP 6    | Grün     | GND
 **!! Achtung !!**
 Vor dem Anschließen der Spannungsversorgung des Arduinos, muss die Batterie entfernt werden.
 
-###Bilder
-![](Pictures/ISP1.JPG){ width=50% }
-![](Pictures/ISP2.JPG){ width=50% }
-![](Pictures/Arduino1.JPG){ width=50% }
-![](Pictures/Arduino2.JPG){ width=50% }
+### Bilder
+![](Pictures/ISP1.JPG)
+![](Pictures/ISP2.JPG)
+![](Pictures/Arduino1.JPG)
+![](Pictures/Arduino2.JPG)
 
-##Vorbereiten der Arduino IDE
-###Board anlegen
+## Vorbereiten der Arduino IDE
+
+### Board anlegen
 Im Arduino Ordner folgende Struktur anlegen:
 *hardware/macherDaachBadge/avr*
 In den avr Ordner dann die boards.txt Datei kopieren.
 
 In dieser Datei ist definiert, dass wir keinen Standard Arduino UNO benutzen sondern einen Arduino ohne Quarz und mit einem Takt von 1 MHz.
-###Timer Library einbinden
+
+### Timer Library einbinden
 Wir verwenden eine fertige Timerlibrary 
 Die Dokumentation zur Library findet sich hier:
 [https://playground.arduino.cc/Deutsch/HalloWeltMitInterruptUndTimerlibrary](https://playground.arduino.cc/Deutsch/HalloWeltMitInterruptUndTimerlibrary) 
@@ -49,7 +52,8 @@ Die Dokumentation zur Library findet sich hier:
 Und herunterladen kann man die Library hier: 
 [http://playground.arduino.cc/uploads/Code/TimerOne.zip](http://playground.arduino.cc/uploads/Code/TimerOne.zip) 
 Der entpackte Ordner muss im Arduino Verzeichnis im Ordner *libraries* abgelegt werden.
-##Den Arduino zum Programmer machen
+
+## Den Arduino zum Programmer machen
 Die Langanleitung findet sich hier:
 [https://www.arduino.cc/en/Tutorial/ArduinoISP](https://www.arduino.cc/en/Tutorial/ArduinoISP) 
 
@@ -60,7 +64,8 @@ In einem neuen Sketch
 3. Datei -> Beispiele -> 11.ArduinoISP
 4. Überprüfen 
 5. Hochladen
-##Den Badge programmieren
+
+## Den Badge programmieren
 Im Macher_Daach_Badge_Firmware Sketch:
 1. Werkzeuge -> Board -> Macher Daach Badge (1 MHz internal clock)
 2. Programmer -> Arduino as ISP
