@@ -51,11 +51,11 @@ Die Dokumentation zur Library findet sich hier:
 
 #### Automatisches einbinden der Library:
 1. Sketch -> Bibliothek einbinden -> Bibliothek verwalten
-![](Pictures/TimerOne_1.JPG)
+![](Pictures/TimerOne_1.png)
 2. TimerOne im Suchfeld eingeben und die Library mit "Installieren" bestätigen
-![](Pictures/TimerOne_2.JPG)
+![](Pictures/TimerOne_2.png)
 
-#### Manueles einbinden der Library: 
+#### Manuelles einbinden der Library: 
 [http://playground.arduino.cc/uploads/Code/TimerOne.zip](http://playground.arduino.cc/uploads/Code/TimerOne.zip) 
 Der entpackte Ordner muss im Arduino Verzeichnis im Ordner *libraries* abgelegt werden.
 
