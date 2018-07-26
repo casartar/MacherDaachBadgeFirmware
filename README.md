@@ -49,7 +49,13 @@ Wir verwenden eine fertige Timerlibrary
 Die Dokumentation zur Library findet sich hier:
 [https://playground.arduino.cc/Deutsch/HalloWeltMitInterruptUndTimerlibrary](https://playground.arduino.cc/Deutsch/HalloWeltMitInterruptUndTimerlibrary) 
 
-Und herunterladen kann man die Library hier: 
+#### Automatisches einbinden der Library:
+1. Sketch -> Bibliothek einbinden -> Bibliothek verwalten
+![](Pictures/TimerOne_1.JPG)
+2. TimerOne im Suchfeld eingeben und die Library mit "Installieren" bestätigen
+![](Pictures/TimerOne_2.JPG)
+
+#### Manueles einbinden der Library: 
 [http://playground.arduino.cc/uploads/Code/TimerOne.zip](http://playground.arduino.cc/uploads/Code/TimerOne.zip) 
 Der entpackte Ordner muss im Arduino Verzeichnis im Ordner *libraries* abgelegt werden.
 
