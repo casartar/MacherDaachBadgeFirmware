@@ -175,13 +175,13 @@ void loop() {
   for (uint8_t y = 0; y < 8; y++){
     for (uint8_t x = 0; x < 8; x++){
       matrix[y][x] = 1;
-        delay(100);
+        delay(10);
     }
   }
   for (uint8_t y = 8; y > 0; y--){
     for (uint8_t x = 8; x > 0; x--){
       matrix[y-1][x-1] = 0;
-        delay(100);
+        delay(10);
     }
   }
 }
