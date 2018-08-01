@@ -27,6 +27,16 @@ const uint8_t LED_Y1 = 13;    // PB5    Pin  5
 const int button_1_Pin = 10;  // PB2        push button SW1
 const int button_2_Pin = 11;  // PB3 (MOSI) push button SW2
 
+typedef enum{
+  BUTTON_PRESSED,
+  BUTTON_HELD,
+  BUTTON_RELEASED,
+  BUTTON_INACTIVE,
+}button_state;
+
+volatile button_state button_1_state = BUTTON_INACTIVE;
+volatile button_state button_2_state = BUTTON_INACTIVE;
+
 uint8_t matrix[8][8] {
   0,0,0,0,0,0,0,0,
   0,0,0,0,0,0,0,0,
@@ -37,6 +47,16 @@ uint8_t matrix[8][8] {
   0,0,0,0,0,0,0,0,
   0,0,0,0,0,0,0,0,
 };
+
+typedef enum {
+  DO_NOTHING,
+  FILL_MATRIX_SLOW,
+  FILL_MATRIX_FAST,
+  CLEAR_MATRIX_SLOW,
+  CLEAR_MATRIX_FAST,
+} actionType;
+
+volatile uint16_t countdown = 0;
 
 void setup() {
   pinMode(LED_X1, OUTPUT);
@@ -83,6 +103,8 @@ void setup() {
 }
 
 void display() {
+
+  // LED Matrix multiplexing
   static uint8_t state = 0;
 
   digitalWrite(LED_X1, ROW_DISABLE);
@@ -168,20 +190,143 @@ void display() {
       state = 0;
       break;
   }
+  
+  // Debouncing push buttons
+  static uint8_t debounce_timer_1 = 0;
+  static uint8_t debounce_timer_2 = 0;
+
+  uint8_t val;
+
+  if (debounce_timer_1 > 0) debounce_timer_1--;
+  if (debounce_timer_1 == 0){
+    val = digitalRead(button_1_Pin);
+    if (button_1_state == BUTTON_INACTIVE && val == LOW){
+      debounce_timer_1 = 50;  // 50ms
+      button_1_state = BUTTON_PRESSED;
+      //button_1_pressed = 1;
+    }
+    else if (button_1_state == BUTTON_PRESSED && val == LOW){
+      button_1_state = BUTTON_HELD;
+      //button_1_pressed = 0;
+    }
+    else if (button_1_state == BUTTON_HELD && val == HIGH){
+      debounce_timer_1 = 50;  // 50ms
+      button_1_state = BUTTON_RELEASED;
+      //button_1_pressed = 0;
+    }
+    else if (button_1_state == BUTTON_RELEASED && val == HIGH){
+      button_1_state = BUTTON_INACTIVE;
+      //button_1_pressed = 0;
+    }
+  }
+
+  if (debounce_timer_2 > 0) debounce_timer_2--;
+  if (debounce_timer_2 == 0){
+    val = digitalRead(button_2_Pin);
+    if (button_2_state == BUTTON_INACTIVE && val == LOW){
+      debounce_timer_2 = 50;  // 50ms
+      button_2_state = BUTTON_PRESSED;
+      //button_2_pressed = 1;
+    }
+    else if (button_2_state == BUTTON_PRESSED && val == LOW){
+      button_2_state = BUTTON_HELD;
+      //button_2_pressed = 0;
+    }
+    else if (button_2_state == BUTTON_HELD && val == HIGH){
+      debounce_timer_2 = 50;  // 50ms
+      button_2_state = BUTTON_RELEASED;
+      //button_2_pressed = 0;
+    }
+    else if (button_2_state == BUTTON_RELEASED && val == HIGH){
+      button_2_state = BUTTON_INACTIVE;
+      //button_2_pressed = 0;
+    }
+  }
+
+  // Countdown
+  if (countdown > 0) countdown--;
 }
 
 void loop() {
-  
-  for (uint8_t y = 0; y < 8; y++){
-    for (uint8_t x = 0; x < 8; x++){
+  static uint8_t x = 0;
+  static uint8_t y = 0;
+  static actionType reqAction = DO_NOTHING;
+
+  if (button_1_state == BUTTON_HELD && button_2_state == BUTTON_PRESSED){
+    reqAction = FILL_MATRIX_SLOW;
+    x = 0;
+    y = 0;
+  }
+  if (button_1_state == BUTTON_PRESSED && button_2_state == BUTTON_HELD){
+    reqAction = CLEAR_MATRIX_SLOW;
+    x = 8;
+    y = 8;
+  }
+  if (button_1_state == BUTTON_INACTIVE && button_2_state == BUTTON_PRESSED){
+    reqAction = FILL_MATRIX_FAST;
+    x = 0;
+    y = 0;
+  }
+  if (button_1_state == BUTTON_PRESSED && button_2_state == BUTTON_INACTIVE){
+    reqAction = CLEAR_MATRIX_FAST;
+    x = 8;
+    y = 8;
+  }
+
+  if (reqAction == FILL_MATRIX_SLOW){  
+    if (countdown == 0){
       matrix[y][x] = 1;
-        delay(100);
+      x++;
+      if (x > 7){
+        x = 0;
+        y++;
+        if (y > 7){
+          reqAction = DO_NOTHING;
+        }
+      }
+      countdown = 100;
     }
   }
-  for (uint8_t y = 8; y > 0; y--){
-    for (uint8_t x = 8; x > 0; x--){
+  else if (reqAction == CLEAR_MATRIX_SLOW){  
+    if (countdown == 0){
       matrix[y-1][x-1] = 0;
-        delay(100);
+      x--;
+      if (x == 0){
+        x = 8;
+        y--;
+        if (y == 0){
+          reqAction = DO_NOTHING;
+        }
+      }
+      countdown = 100;
+    }
+  }
+  else if (reqAction == FILL_MATRIX_FAST){  
+    if (countdown == 0){
+      matrix[y][x] = 1;
+      x++;
+      if (x > 7){
+        x = 0;
+        y++;
+        if (y > 7){
+          reqAction = DO_NOTHING;
+        }
+      }
+      countdown = 10;
+    }
+  }
+  else if (reqAction == CLEAR_MATRIX_FAST){  
+    if (countdown == 0){
+      matrix[y-1][x-1] = 0;
+      x--;
+      if (x == 0){
+        x = 8;
+        y--;
+        if (y == 0){
+          reqAction = DO_NOTHING;
+        }
+      }
+      countdown = 10;
     }
   }
 }
