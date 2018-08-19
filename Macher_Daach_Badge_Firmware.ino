@@ -51,13 +51,14 @@ uint8_t matrix[8][8] {
 // Add here a define for your output mode and increase OUTPUT_MODE_MAX accordingly
 #define FILL_MATRIX_SLOW        0
 #define FILL_MATRIX_FAST        1
-#define OUTPUT_MODE_MAX         2
+#define FILL_MATRIX_SPIRAL      2
+#define OUTPUT_MODE_MAX         3
 
 volatile uint8_t reqModeSwitch = 0;
 volatile uint16_t countdown = 0;
 
-uint8_t x = 0;
-uint8_t y = 0;
+int8_t x = 0;
+int8_t y = 0;
 
 #define TIMER_PERIOD_IN_MS   2
 
@@ -294,6 +295,9 @@ void loop() {
     case FILL_MATRIX_FAST:
       output_fill_matrix_fast();
       break;
+    case FILL_MATRIX_SPIRAL:
+      output_fill_matrix_spiral();
+      break;
     default:
       break;
   }
@@ -325,6 +329,65 @@ void output_fill_matrix_fast(){
       if (y > 7){
         clear_matrix_immediatly();
       }
+    }
+    countdown = TIME_20_MS;
+  }
+}
+
+void output_fill_matrix_spiral(){
+  static uint8_t round = 0;
+  static uint8_t mode = 1;  // 1 = fill, 0 = clear
+  static uint8_t direction = 0;
+
+  if (countdown == 0){
+    if (mode == 1) {
+      // fill
+      if (x == round && y == round + 1) {
+        direction = 0;
+        round++;
+      } else if (x == 7 - round && y == round) {
+        direction = 1;
+      } else if (x == 7 -round && y == 7 - round) {
+        direction = 2;
+      } else if (x == round && y == 7 - round) {
+        direction = 3;
+      }
+
+    } else {
+      // clear
+      if (x == round && y == round) {
+        direction = 0;
+      } else if (x == 7 - round && y == round) {
+        direction = 1;
+      } else if (x == 7 - round && y == 7 - round) {
+        direction = 2;
+      } else if (x == round - 1 && y == 7 - round) {
+        direction = 3;
+        round--;
+      }
+    }
+
+    switch(direction) {
+      case 0: x++; break;  // to the right
+      case 1: y++; break;  // upwards
+      case 2: x--; break;  // to the left
+      case 3: y--; break;  // downwards
+    }
+
+    matrix[y][x] = mode;
+
+    if (mode == 1 && x == 3 && y == 4) {  // last pixel activ - switch to turn off
+      mode = 0;
+      direction = 0;
+      x--;
+      y--;
+    }
+
+    if (mode == 0 && x == 0 && y == 7) {  // last pixel clear - refill again
+      mode = 1;
+      direction = 0;
+      x = -1;
+      y = 0;
     }
     countdown = TIME_20_MS;
   }
