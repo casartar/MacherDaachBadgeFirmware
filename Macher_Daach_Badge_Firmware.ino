@@ -48,15 +48,23 @@ uint8_t matrix[8][8] {
   0,0,0,0,0,0,0,0,
 };
 
-typedef enum {
-  DO_NOTHING,
-  FILL_MATRIX_SLOW,
-  FILL_MATRIX_FAST,
-  CLEAR_MATRIX_SLOW,
-  CLEAR_MATRIX_FAST,
-} actionType;
+// Add here a define for your output mode and increase OUTPUT_MODE_MAX accordingly
+#define FILL_MATRIX_SLOW        0
+#define FILL_MATRIX_FAST        1
+#define OUTPUT_MODE_MAX         2
 
+volatile uint8_t reqModeSwitch = 0;
 volatile uint16_t countdown = 0;
+
+uint8_t x = 0;
+uint8_t y = 0;
+
+#define TIMER_PERIOD_IN_MS   2
+
+#define TIME_3_S              (3000/TIMER_PERIOD_IN_MS)
+#define TIME_200_MS           (200/TIMER_PERIOD_IN_MS)
+#define TIME_50_MS            (50/TIMER_PERIOD_IN_MS)
+#define TIME_20_MS            (20/TIMER_PERIOD_IN_MS)
 
 void setup() {
   pinMode(LED_X1, OUTPUT);
@@ -99,7 +107,8 @@ void setup() {
   pinMode(button_2_Pin, INPUT_PULLUP);
 
   Timer1.initialize();
-  Timer1.attachInterrupt(display, 2000);
+  // The display function gets called every 2 ms
+  Timer1.attachInterrupt(display, TIMER_PERIOD_IN_MS*1000);
 }
 
 void display() {
@@ -190,7 +199,7 @@ void display() {
       state = 0;
       break;
   }
-  
+
   // Debouncing push buttons
   static uint8_t debounce_timer_1 = 0;
   static uint8_t debounce_timer_2 = 0;
@@ -201,22 +210,18 @@ void display() {
   if (debounce_timer_1 == 0){
     val = digitalRead(button_1_Pin);
     if (button_1_state == BUTTON_INACTIVE && val == LOW){
-      debounce_timer_1 = 50;  // 50ms
+      debounce_timer_1 = TIME_50_MS;  // 50ms
       button_1_state = BUTTON_PRESSED;
-      //button_1_pressed = 1;
     }
     else if (button_1_state == BUTTON_PRESSED && val == LOW){
       button_1_state = BUTTON_HELD;
-      //button_1_pressed = 0;
     }
     else if (button_1_state == BUTTON_HELD && val == HIGH){
-      debounce_timer_1 = 50;  // 50ms
+      debounce_timer_1 = TIME_50_MS;  // 50ms
       button_1_state = BUTTON_RELEASED;
-      //button_1_pressed = 0;
     }
     else if (button_1_state == BUTTON_RELEASED && val == HIGH){
       button_1_state = BUTTON_INACTIVE;
-      //button_1_pressed = 0;
     }
   }
 
@@ -224,23 +229,32 @@ void display() {
   if (debounce_timer_2 == 0){
     val = digitalRead(button_2_Pin);
     if (button_2_state == BUTTON_INACTIVE && val == LOW){
-      debounce_timer_2 = 50;  // 50ms
+      debounce_timer_2 = TIME_50_MS;  // 50ms
       button_2_state = BUTTON_PRESSED;
-      //button_2_pressed = 1;
     }
     else if (button_2_state == BUTTON_PRESSED && val == LOW){
       button_2_state = BUTTON_HELD;
-      //button_2_pressed = 0;
     }
     else if (button_2_state == BUTTON_HELD && val == HIGH){
-      debounce_timer_2 = 50;  // 50ms
+      debounce_timer_2 = TIME_50_MS;  // 50ms
       button_2_state = BUTTON_RELEASED;
-      //button_2_pressed = 0;
     }
     else if (button_2_state == BUTTON_RELEASED && val == HIGH){
       button_2_state = BUTTON_INACTIVE;
-      //button_2_pressed = 0;
     }
+  }
+
+  static uint16_t mode_switch_timer = 0;
+
+  if (button_1_state == BUTTON_HELD
+   && button_2_state == BUTTON_HELD){
+    mode_switch_timer++;
+    if (mode_switch_timer == TIME_3_S){
+      reqModeSwitch = 1;
+    }
+  }
+  else{
+    mode_switch_timer = 0;
   }
 
   // Countdown
@@ -248,85 +262,84 @@ void display() {
 }
 
 void loop() {
-  static uint8_t x = 0;
-  static uint8_t y = 0;
-  static actionType reqAction = DO_NOTHING;
+  static uint8_t outputMode = 0;
 
-  if (button_1_state == BUTTON_HELD && button_2_state == BUTTON_PRESSED){
-    reqAction = FILL_MATRIX_SLOW;
-    x = 0;
-    y = 0;
-  }
-  if (button_1_state == BUTTON_PRESSED && button_2_state == BUTTON_HELD){
-    reqAction = CLEAR_MATRIX_SLOW;
-    x = 8;
-    y = 8;
-  }
-  if (button_1_state == BUTTON_INACTIVE && button_2_state == BUTTON_PRESSED){
-    reqAction = FILL_MATRIX_FAST;
-    x = 0;
-    y = 0;
-  }
-  if (button_1_state == BUTTON_PRESSED && button_2_state == BUTTON_INACTIVE){
-    reqAction = CLEAR_MATRIX_FAST;
-    x = 8;
-    y = 8;
+  if (reqModeSwitch){
+    // both buttons were pressed for 3 seconds
+    reqModeSwitch = 0;
+
+    // create a defined state and turn off all leds
+    clear_matrix_immediatly();
+
+    // switch output mode
+    outputMode++;
+    if (outputMode == OUTPUT_MODE_MAX) outputMode = 0;
+
+    // Do initializations for a new output mode here if necessary
+    switch (outputMode){
+      case FILL_MATRIX_SLOW:
+        break;
+      case FILL_MATRIX_FAST:
+        break;
+      default:
+        break;
+    }
   }
 
-  if (reqAction == FILL_MATRIX_SLOW){  
-    if (countdown == 0){
-      matrix[y][x] = 1;
-      x++;
-      if (x > 7){
-        x = 0;
-        y++;
-        if (y > 7){
-          reqAction = DO_NOTHING;
-        }
+  // Call your output mode in this switch
+  switch (outputMode){
+    case FILL_MATRIX_SLOW:
+      output_fill_matrix_slow();
+      break;
+    case FILL_MATRIX_FAST:
+      output_fill_matrix_fast();
+      break;
+    default:
+      break;
+  }
+}
+
+// output mode functions
+void output_fill_matrix_slow(){
+  if (countdown == 0){
+    matrix[y][x] = 1;
+    x++;
+    if (x > 7){
+      x = 0;
+      y++;
+      if (y > 7){
+        clear_matrix_immediatly();
       }
-      countdown = 100;
+    }
+    countdown = TIME_200_MS;
+  }
+}
+
+void output_fill_matrix_fast(){
+  if (countdown == 0){
+    matrix[y][x] = 1;
+    x++;
+    if (x > 7){
+      x = 0;
+      y++;
+      if (y > 7){
+        clear_matrix_immediatly();
+      }
+    }
+    countdown = TIME_20_MS;
+  }
+}
+
+// add your output mode function here
+
+// Helper functions
+void clear_matrix_immediatly(){
+  for (y = 0; y < 8; y++){
+    for (x = 0; x < 8; x++){
+      matrix[y][x] = 0;
     }
   }
-  else if (reqAction == CLEAR_MATRIX_SLOW){  
-    if (countdown == 0){
-      matrix[y-1][x-1] = 0;
-      x--;
-      if (x == 0){
-        x = 8;
-        y--;
-        if (y == 0){
-          reqAction = DO_NOTHING;
-        }
-      }
-      countdown = 100;
-    }
-  }
-  else if (reqAction == FILL_MATRIX_FAST){  
-    if (countdown == 0){
-      matrix[y][x] = 1;
-      x++;
-      if (x > 7){
-        x = 0;
-        y++;
-        if (y > 7){
-          reqAction = DO_NOTHING;
-        }
-      }
-      countdown = 10;
-    }
-  }
-  else if (reqAction == CLEAR_MATRIX_FAST){  
-    if (countdown == 0){
-      matrix[y-1][x-1] = 0;
-      x--;
-      if (x == 0){
-        x = 8;
-        y--;
-        if (y == 0){
-          reqAction = DO_NOTHING;
-        }
-      }
-      countdown = 10;
-    }
-  }
+  // reset x and y for further use
+  x = 0;
+  y = 0;
 }
