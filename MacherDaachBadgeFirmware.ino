@@ -52,7 +52,8 @@ uint8_t matrix[8][8] {
 #define FILL_MATRIX_SLOW        0
 #define FILL_MATRIX_FAST        1
 #define FILL_MATRIX_SPIRAL      2
-#define OUTPUT_MODE_MAX         3
+#define FILL_MATRIX_RANDOM      3
+#define OUTPUT_MODE_MAX         4
 
 volatile uint8_t reqModeSwitch = 0;
 volatile uint16_t countdown = 0;
@@ -298,6 +299,9 @@ void loop() {
     case FILL_MATRIX_SPIRAL:
       output_fill_matrix_spiral();
       break;
+    case FILL_MATRIX_RANDOM:
+      output_fill_matrix_random();
+      break;
     default:
       break;
   }
@@ -391,6 +395,19 @@ void output_fill_matrix_spiral(){
     }
     countdown = TIME_20_MS;
   }
+}
+
+unsigned int rng() {
+  static unsigned int r = 0;
+  r += micros(); // seeded with changing number
+  r ^= r << 2; r ^= r >> 7; r ^= r << 7;
+  return (r);
+}
+
+void output_fill_matrix_random() {
+    x = rng() / 8192;
+    y = rng() / 8192;
+    matrix[y][x] = !matrix[y][x];
 }
 
 // add your output mode function here
