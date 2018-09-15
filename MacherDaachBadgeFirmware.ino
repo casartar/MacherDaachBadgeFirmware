@@ -7,7 +7,7 @@
 #define COLUMN_ON LOW
 #define COLUMN_OFF HIGH
 
-#define TEXT "your name here"
+#define TEXT "ABCDEabcde1234567890"
 #define TEXT_SHIFT_SPEED_MS 80
 
 //                     Arduino   AVR    LED Matrix 
@@ -425,19 +425,7 @@ void outputString(char * text){
   int yOffset=0;
   
   for (t = text; *t != '\0'; t++){
-    if(isDigit(*t)){
-      offsetASCII = 49;
-      displayCharacterOffset(NUMBERS[(int)*t-offsetASCII],xOffset,yOffset);
-    }
-    if(isUpperCase(*t)){
-      offsetASCII = 65;
-      displayCharacterOffset(LETTERS[(int)*t-offsetASCII],xOffset,yOffset);
-    }
-    if(isLowerCase(*t)){
-      offsetASCII = 70;
-      displayCharacterOffset(LETTERS[(int)*t-offsetASCII],xOffset,yOffset);
-    }
-    
+    displayCharacterOffset(ASCII[(int)*t],xOffset,yOffset);
     delay(500);
   }
 }
@@ -446,7 +434,6 @@ void outputString(char * text){
 //Shifts string through matrix
 void outputShiftString(char * text){
   char * t;
-  int offsetASCII = 0;
   int xOffset=0;
   int yOffset=0;
   bool fistrun = true;
@@ -462,33 +449,11 @@ void outputShiftString(char * text){
          xOffset=7;
          fistrun=false;
       }
-      if(isDigit(*t)){
-        offsetASCII = 49;
-        displayCharacterOffset(NUMBERS[(int)*t-offsetASCII],xOffset,yOffset);
-      }
-      if(isUpperCase(*t)){
-        offsetASCII = 65;
-        displayCharacterOffset(LETTERS[(int)*t-offsetASCII],xOffset,yOffset);
-      }
-      if(isLowerCase(*t)){
-        offsetASCII = 70;
-        displayCharacterOffset(LETTERS[(int)*t-offsetASCII],xOffset,yOffset);
-      }
+      displayCharacterOffset(ASCII[(int)*t],xOffset,yOffset);
 
       // *********second charcter part***********
-      if(xOffset < 0){
-        if(isDigit(*(t+1))){
-          offsetASCII = 49;
-          displayCharacterOffset(NUMBERS[(int)*(t+1)-offsetASCII],xOffset+7,yOffset);
-        }
-        if(isUpperCase(*(t+1))){
-          offsetASCII = 65;
-          displayCharacterOffset(LETTERS[(int)*(t+1)-offsetASCII],xOffset+7,yOffset);
-        }
-        if(isLowerCase(*(t+1))){
-          offsetASCII = 70;
-          displayCharacterOffset(LETTERS[(int)*(t+1)-offsetASCII],xOffset+7,yOffset);
-        }
+      if(xOffset < 0 && *(t+1) != '\0'){
+        displayCharacterOffset(ASCII[(int)*(t+1)],xOffset+7,yOffset);
       }
       delay(TEXT_SHIFT_SPEED_MS);
     }
