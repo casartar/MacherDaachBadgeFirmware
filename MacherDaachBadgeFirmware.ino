@@ -6,23 +6,27 @@
 #define COLUMN_OFF HIGH
 
 //                     Arduino   AVR    LED Matrix 
-const uint8_t LED_X1 = 2;     // PD2    Pin 13
-const uint8_t LED_X2 = 3;     // PD3    Pin  3
-const uint8_t LED_X3 = 4;     // PD4    Pin  4
-const uint8_t LED_X4 = 5;     // PD5    Pin 10
-const uint8_t LED_X5 = 6;     // PD6    Pin  6
-const uint8_t LED_X6 = 7;     // PD7    Pin 11
-const uint8_t LED_X7 = 8;     // PB0    Pin 15
-const uint8_t LED_X8 = 9;     // PB1    Pin 16
+#define LED_X1    2     // PD2    Pin 13
+#define LED_X2    3     // PD3    Pin  3
+#define LED_X3    4     // PD4    Pin  4
+#define LED_X4    5     // PD5    Pin 10
+#define LED_X5    6     // PD6    Pin  6
+#define LED_X6    7     // PD7    Pin 11
+#define LED_X7    8     // PB0    Pin 15
+#define LED_X8    9     // PB1    Pin 16
 
-const uint8_t LED_Y8 = 14;    // PC0    Pin  9
-const uint8_t LED_Y7 = 15;    // PC1    Pin 14
-const uint8_t LED_Y6 = 16;    // PC2    Pin  8
-const uint8_t LED_Y5 = 17;    // PC3    Pin 12
-const uint8_t LED_Y4 = 18;    // PC4    Pin  1  
-const uint8_t LED_Y3 = 19;    // PC5    Pin  7
-const uint8_t LED_Y2 = 12;    // PB4    Pin  2
-const uint8_t LED_Y1 = 13;    // PB5    Pin  5
+#define LED_Y8   14     // PC0    Pin  9
+#define LED_Y7   15     // PC1    Pin 14
+#define LED_Y6   16     // PC2    Pin  8
+#define LED_Y5   17     // PC3    Pin 12
+#define LED_Y4   18     // PC4    Pin  1
+#define LED_Y3   19     // PC5    Pin  7
+#define LED_Y2   12     // PB4    Pin  2
+#define LED_Y1   13     // PB5    Pin  5
+
+const uint8_t LED_X[8] = {LED_X1, LED_X2, LED_X3, LED_X4, LED_X5, LED_X6, LED_X7, LED_X8};
+const uint8_t LED_Y[8] = {LED_Y1, LED_Y2, LED_Y3, LED_Y4, LED_Y5, LED_Y6, LED_Y7, LED_Y8};
+
 
 const int button_1_Pin = 10;  // PB2        push button SW1
 const int button_2_Pin = 11;  // PB3 (MOSI) push button SW2
@@ -37,7 +41,7 @@ typedef enum{
 volatile button_state button_1_state = BUTTON_INACTIVE;
 volatile button_state button_2_state = BUTTON_INACTIVE;
 
-uint8_t matrix[8][8] {
+volatile uint8_t matrix[8][8] {
   0,0,0,0,0,0,0,0,
   0,0,0,0,0,0,0,0,
   0,0,0,0,0,0,0,0,
@@ -117,89 +121,25 @@ void display() {
   // LED Matrix multiplexing
   static uint8_t state = 0;
 
-  digitalWrite(LED_X1, ROW_DISABLE);
-  digitalWrite(LED_X2, ROW_DISABLE);
-  digitalWrite(LED_X3, ROW_DISABLE);
-  digitalWrite(LED_X4, ROW_DISABLE);
-  digitalWrite(LED_X5, ROW_DISABLE);
-  digitalWrite(LED_X6, ROW_DISABLE);
-  digitalWrite(LED_X7, ROW_DISABLE);
-  digitalWrite(LED_X8, ROW_DISABLE);
-
-  if (matrix[0][state] != 0)
-    digitalWrite(LED_Y1, COLUMN_ON);
-  else
-    digitalWrite(LED_Y1, COLUMN_OFF);
-    
-  if (matrix[1][state] != 0)
-    digitalWrite(LED_Y2, COLUMN_ON);
-  else
-    digitalWrite(LED_Y2, COLUMN_OFF);
-  
-  if (matrix[2][state] != 0)
-    digitalWrite(LED_Y3, COLUMN_ON);
-  else
-    digitalWrite(LED_Y3, COLUMN_OFF);
-  
-  if (matrix[3][state] != 0)
-    digitalWrite(LED_Y4, COLUMN_ON);
-  else
-    digitalWrite(LED_Y4, COLUMN_OFF);
-  
-  if (matrix[4][state] != 0)
-    digitalWrite(LED_Y5, COLUMN_ON);
-  else
-    digitalWrite(LED_Y5, COLUMN_OFF);
-  
-  if (matrix[5][state] != 0)
-    digitalWrite(LED_Y6, COLUMN_ON);
-  else
-    digitalWrite(LED_Y6, COLUMN_OFF);
-  
-  if (matrix[6][state] != 0)
-    digitalWrite(LED_Y7, COLUMN_ON);
-  else
-    digitalWrite(LED_Y7, COLUMN_OFF);
-  
-  if (matrix[7][state] != 0)
-    digitalWrite(LED_Y8, COLUMN_ON);
-  else
-    digitalWrite(LED_Y8, COLUMN_OFF);
-
-  switch (state){
-    case 0:
-      digitalWrite(LED_X1, ROW_ENABLE);
-      state = 1;
-      break;
-    case 1:
-      digitalWrite(LED_X2, ROW_ENABLE);
-      state = 2;
-      break;
-    case 2:
-      digitalWrite(LED_X3, ROW_ENABLE);
-      state = 3;
-      break;
-    case 3:
-      digitalWrite(LED_X4, ROW_ENABLE);
-      state = 4;
-      break;
-    case 4:
-      digitalWrite(LED_X5, ROW_ENABLE);
-      state = 5;
-      break;
-    case 5:
-      digitalWrite(LED_X6, ROW_ENABLE);
-      state = 6;
-      break;
-    case 6:
-      digitalWrite(LED_X7, ROW_ENABLE);
-      state = 7;
-      break;
-    case 7 :
-      digitalWrite(LED_X8, ROW_ENABLE);
-      state = 0;
-      break;
+  for (int i=0; i<8; i++) {
+    digitalWrite(LED_X[i], ROW_DISABLE);
   }
+  
+  for (int j=0; j<8; j++) {
+    if (matrix[j][state] == 0) {
+      digitalWrite(LED_Y[j], COLUMN_OFF );
+    } else {
+      digitalWrite(LED_Y[j], COLUMN_ON );
+    }
+  }
+  digitalWrite(LED_X[state], ROW_ENABLE);
+  
+  if (state == 8) {
+    state = 0;
+  } else {
+    state += 1;
+  }
+
 
   // Debouncing push buttons
   static uint8_t debounce_timer_1 = 0;
@@ -262,6 +202,7 @@ void display() {
   if (countdown > 0) countdown--;
 }
 
+
 void loop() {
   static uint8_t outputMode = 0;
 
@@ -305,17 +246,25 @@ void loop() {
 
 // output mode functions
 void output_fill_matrix_slow(){
+  static int kante = 0;
+
   if (countdown == 0){
-    matrix[y][x] = 1;
+    if ((x%kante==0) || (y%kante==0)) {
+      matrix[y][x] = 1;
+      countdown = TIME_200_MS;
+    } else {
+      matrix[y][x] = 0;
+    }
     x++;
     if (x > 7){
       x = 0;
       y++;
       if (y > 7){
-        clear_matrix_immediatly();
+        // clear_matrix_immediatly();
+        kante += 1;
+        if (kante == 8) { kante = 0; }
       }
     }
-    countdown = TIME_200_MS;
   }
 }
 
@@ -394,6 +343,7 @@ void output_fill_matrix_spiral(){
 }
 
 // add your output mode function here
+
 
 // Helper functions
 void clear_matrix_immediatly(){
