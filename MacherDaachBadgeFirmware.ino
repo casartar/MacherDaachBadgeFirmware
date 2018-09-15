@@ -7,6 +7,9 @@
 #define COLUMN_ON LOW
 #define COLUMN_OFF HIGH
 
+#define TEXT "your name here"
+#define TEXT_SHIFT_SPEED_MS 80
+
 //                     Arduino   AVR    LED Matrix 
 const uint8_t LED_X1 = 2;     // PD2    Pin 13
 const uint8_t LED_X2 = 3;     // PD3    Pin  3
@@ -293,7 +296,9 @@ void loop() {
   // Call your output mode in this switch
   switch (outputMode){
     case FILL_MATRIX_SLOW:
-      displayCharacter(NUMBERS[0]);
+      outputShiftString(TEXT);
+      //outputString(TEXT);
+      //displayCharacterOffset(LETTERS[0],3,0);
       //output_fill_matrix_slow();
       break;
     case FILL_MATRIX_FAST:
@@ -411,10 +416,99 @@ void clear_matrix_immediatly(){
   y = 0;
 }
 
+
+// Shows sing characters of passed string one after the other
+void outputString(char * text){
+  char * t;
+  int offsetASCII = 0;
+  int xOffset=0;
+  int yOffset=0;
+  
+  for (t = text; *t != '\0'; t++){
+    if(isDigit(*t)){
+      offsetASCII = 49;
+      displayCharacterOffset(NUMBERS[(int)*t-offsetASCII],xOffset,yOffset);
+    }
+    if(isUpperCase(*t)){
+      offsetASCII = 65;
+      displayCharacterOffset(LETTERS[(int)*t-offsetASCII],xOffset,yOffset);
+    }
+    if(isLowerCase(*t)){
+      offsetASCII = 70;
+      displayCharacterOffset(LETTERS[(int)*t-offsetASCII],xOffset,yOffset);
+    }
+    
+    delay(500);
+  }
+}
+
+
+//Shifts string through matrix
+void outputShiftString(char * text){
+  char * t;
+  int offsetASCII = 0;
+  int xOffset=0;
+  int yOffset=0;
+  bool fistrun = true;
+
+  /* iterate over text characters
+   * loop takes car of two characters a the same time
+  */
+  for (t = text; *t != '\0'; t++){
+    
+    for (xOffset = -1; xOffset >= -7; xOffset--){
+      // *********first charcter part***********
+      if (fistrun){
+         xOffset=7;
+         fistrun=false;
+      }
+      if(isDigit(*t)){
+        offsetASCII = 49;
+        displayCharacterOffset(NUMBERS[(int)*t-offsetASCII],xOffset,yOffset);
+      }
+      if(isUpperCase(*t)){
+        offsetASCII = 65;
+        displayCharacterOffset(LETTERS[(int)*t-offsetASCII],xOffset,yOffset);
+      }
+      if(isLowerCase(*t)){
+        offsetASCII = 70;
+        displayCharacterOffset(LETTERS[(int)*t-offsetASCII],xOffset,yOffset);
+      }
+
+      // *********second charcter part***********
+      if(xOffset < 0){
+        if(isDigit(*(t+1))){
+          offsetASCII = 49;
+          displayCharacterOffset(NUMBERS[(int)*(t+1)-offsetASCII],xOffset+7,yOffset);
+        }
+        if(isUpperCase(*(t+1))){
+          offsetASCII = 65;
+          displayCharacterOffset(LETTERS[(int)*(t+1)-offsetASCII],xOffset+7,yOffset);
+        }
+        if(isLowerCase(*(t+1))){
+          offsetASCII = 70;
+          displayCharacterOffset(LETTERS[(int)*(t+1)-offsetASCII],xOffset+7,yOffset);
+        }
+      }
+      delay(TEXT_SHIFT_SPEED_MS);
+    }
+  }
+}
+
 void displayCharacter(const byte* image) {
   for (int i = 0; i < 8; i++) {
     for (int j = 0; j < 8; j++) {
       matrix[i][j] = bitRead(image[i],7-j);
+    }
+  }
+}
+
+void displayCharacterOffset(const byte* image, int8_t x, int8_t y) {
+  for (int i = 0; i < 8; i++) {
+    for (int j = 0; j < 8; j++) {
+      if(((j+x) >= 0 && (j+x) < 8) && ((i+y) >= 0 && (i+y) < 8)){
+        matrix[i+y][j+x] = bitRead(image[i],7-j);
+      }
     }
   }
 }
