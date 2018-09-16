@@ -41,7 +41,7 @@ typedef enum{
 volatile button_state button_1_state = BUTTON_INACTIVE;
 volatile button_state button_2_state = BUTTON_INACTIVE;
 
-volatile uint8_t matrix[8][8] {
+uint8_t matrix[8][8] {
   0,0,0,0,0,0,0,0,
   0,0,0,0,0,0,0,0,
   0,0,0,0,0,0,0,0,
@@ -145,7 +145,6 @@ void display() {
     state += 1;
   }
 
-
   // Debouncing push buttons
   static uint8_t debounce_timer_1 = 0;
   static uint8_t debounce_timer_2 = 0;
@@ -157,8 +156,8 @@ void display() {
   } else {
     val = digitalRead(button_1_Pin);
     if ((button_1_state == BUTTON_INACTIVE) && (val == LOW)){
-        debounce_timer_1 = TIME_50_MS;   // 50ms 
-        button_1_state = BUTTON_PRESSED; 
+        debounce_timer_1 = TIME_50_MS;   // 50ms
+        button_1_state = BUTTON_PRESSED;
     } else if (button_1_state == BUTTON_PRESSED){ // aka 50MS later ...
       if (val == LOW){
         button_1_state = BUTTON_HELD; // now, this counts
@@ -187,8 +186,8 @@ void display() {
   } else {
     val = digitalRead(button_2_Pin);
     if ((button_2_state == BUTTON_INACTIVE) && (val == LOW)){
-        debounce_timer_2 = TIME_50_MS;   // 50ms 
-        button_2_state = BUTTON_PRESSED; 
+        debounce_timer_2 = TIME_50_MS;   // 50ms
+        button_2_state = BUTTON_PRESSED;
     } else if (button_2_state == BUTTON_PRESSED){ // aka 50MS later ...
       if (val == LOW){
         button_2_state = BUTTON_HELD; // now, this counts
@@ -228,7 +227,6 @@ void display() {
   // Countdown
   if (countdown > 0) countdown--;
 }
-
 
 void loop() {
   static uint8_t outputMode = 0;
@@ -378,7 +376,6 @@ void output_fill_matrix_random() {
 }
 
 // add your output mode function here
-
 
 // Helper functions
 void clear_matrix_immediatly(){
