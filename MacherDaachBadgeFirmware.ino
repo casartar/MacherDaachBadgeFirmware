@@ -6,23 +6,23 @@
 #define COLUMN_OFF HIGH
 
 //                     Arduino   AVR    LED Matrix 
-#define LED_X1    2     // PD2    Pin 13
-#define LED_X2    3     // PD3    Pin  3
-#define LED_X3    4     // PD4    Pin  4
-#define LED_X4    5     // PD5    Pin 10
-#define LED_X5    6     // PD6    Pin  6
-#define LED_X6    7     // PD7    Pin 11
-#define LED_X7    8     // PB0    Pin 15
-#define LED_X8    9     // PB1    Pin 16
+const uint8_t LED_X1 = 2;     // PD2    Pin 13
+const uint8_t LED_X2 = 3;     // PD3    Pin  3
+const uint8_t LED_X3 = 4;     // PD4    Pin  4
+const uint8_t LED_X4 = 5;     // PD5    Pin 10
+const uint8_t LED_X5 = 6;     // PD6    Pin  6
+const uint8_t LED_X6 = 7;     // PD7    Pin 11
+const uint8_t LED_X7 = 8;     // PB0    Pin 15
+const uint8_t LED_X8 = 9;     // PB1    Pin 16
 
-#define LED_Y8   14     // PC0    Pin  9
-#define LED_Y7   15     // PC1    Pin 14
-#define LED_Y6   16     // PC2    Pin  8
-#define LED_Y5   17     // PC3    Pin 12
-#define LED_Y4   18     // PC4    Pin  1
-#define LED_Y3   19     // PC5    Pin  7
-#define LED_Y2   12     // PB4    Pin  2
-#define LED_Y1   13     // PB5    Pin  5
+const uint8_t LED_Y8 = 14;    // PC0    Pin  9
+const uint8_t LED_Y7 = 15;    // PC1    Pin 14
+const uint8_t LED_Y6 = 16;    // PC2    Pin  8
+const uint8_t LED_Y5 = 17;    // PC3    Pin 12
+const uint8_t LED_Y4 = 18;    // PC4    Pin  1  
+const uint8_t LED_Y3 = 19;    // PC5    Pin  7
+const uint8_t LED_Y2 = 12;    // PB4    Pin  2
+const uint8_t LED_Y1 = 13;    // PB5    Pin  5
 
 const uint8_t LED_X[8] = {LED_X1, LED_X2, LED_X3, LED_X4, LED_X5, LED_X6, LED_X7, LED_X8};
 const uint8_t LED_Y[8] = {LED_Y1, LED_Y2, LED_Y3, LED_Y4, LED_Y5, LED_Y6, LED_Y7, LED_Y8};
@@ -122,20 +122,24 @@ void display() {
   // LED Matrix multiplexing
   static uint8_t state = 0;
 
-  for (int i=0; i<8; i++) {
-    digitalWrite(LED_X[i], ROW_DISABLE);
+  if (state==0) {
+    digitalWrite(LED_X[7], ROW_DISABLE);
+  } else {
+    digitalWrite(LED_X[state-1], ROW_DISABLE);
   }
-  
-  for (int j=0; j<8; j++) {
-    if (matrix[j][state] == 0) {
-      digitalWrite(LED_Y[j], COLUMN_OFF );
-    } else {
-      digitalWrite(LED_Y[j], COLUMN_ON );
-    }
-  }
+
+  digitalWrite(LED_Y1, !matrix[0][state]);
+  digitalWrite(LED_Y2, !matrix[1][state]);
+  digitalWrite(LED_Y3, !matrix[2][state]);
+  digitalWrite(LED_Y4, !matrix[3][state]);
+  digitalWrite(LED_Y5, !matrix[4][state]);
+  digitalWrite(LED_Y6, !matrix[5][state]);
+  digitalWrite(LED_Y7, !matrix[6][state]);
+  digitalWrite(LED_Y8, !matrix[7][state]);
+
   digitalWrite(LED_X[state], ROW_ENABLE);
-  
-  if (state == 8) {
+
+  if (state == 7) {
     state = 0;
   } else {
     state += 1;
@@ -148,41 +152,63 @@ void display() {
 
   uint8_t val;
 
-  if (debounce_timer_1 > 0) debounce_timer_1--;
-  if (debounce_timer_1 == 0){
+  if (debounce_timer_1 > 0) {
+    debounce_timer_1--;
+  } else {
     val = digitalRead(button_1_Pin);
-    if (button_1_state == BUTTON_INACTIVE && val == LOW){
-      debounce_timer_1 = TIME_50_MS;  // 50ms
-      button_1_state = BUTTON_PRESSED;
-    }
-    else if (button_1_state == BUTTON_PRESSED && val == LOW){
-      button_1_state = BUTTON_HELD;
-    }
-    else if (button_1_state == BUTTON_HELD && val == HIGH){
-      debounce_timer_1 = TIME_50_MS;  // 50ms
-      button_1_state = BUTTON_RELEASED;
-    }
-    else if (button_1_state == BUTTON_RELEASED && val == HIGH){
-      button_1_state = BUTTON_INACTIVE;
+    if ((button_1_state == BUTTON_INACTIVE) && (val == LOW)){
+        debounce_timer_1 = TIME_50_MS;   // 50ms 
+        button_1_state = BUTTON_PRESSED; 
+    } else if (button_1_state == BUTTON_PRESSED){ // aka 50MS later ...
+      if (val == LOW){
+        button_1_state = BUTTON_HELD; // now, this counts
+        debounce_timer_1 = TIME_20_MS;  // --> read button every 20ms
+      } else {
+        button_1_state = BUTTON_INACTIVE; // nope, just a glitch
+      }
+    } else if (button_1_state == BUTTON_HELD){
+      if (val == HIGH){
+        debounce_timer_1 = TIME_50_MS;  // 50ms
+        button_1_state = BUTTON_RELEASED;
+      } else {
+        debounce_timer_1 = TIME_20_MS;  // --> read button only every 20ms
+      }
+    } else if (button_1_state == BUTTON_RELEASED){
+      if (val == HIGH){
+        button_1_state = BUTTON_INACTIVE; // yep, it's released
+      } else {
+        button_1_state = BUTTON_HELD; // nope, just a glitch
+      }
     }
   }
 
-  if (debounce_timer_2 > 0) debounce_timer_2--;
-  if (debounce_timer_2 == 0){
+  if (debounce_timer_2 > 0) {
+    debounce_timer_2--;
+  } else {
     val = digitalRead(button_2_Pin);
-    if (button_2_state == BUTTON_INACTIVE && val == LOW){
-      debounce_timer_2 = TIME_50_MS;  // 50ms
-      button_2_state = BUTTON_PRESSED;
-    }
-    else if (button_2_state == BUTTON_PRESSED && val == LOW){
-      button_2_state = BUTTON_HELD;
-    }
-    else if (button_2_state == BUTTON_HELD && val == HIGH){
-      debounce_timer_2 = TIME_50_MS;  // 50ms
-      button_2_state = BUTTON_RELEASED;
-    }
-    else if (button_2_state == BUTTON_RELEASED && val == HIGH){
-      button_2_state = BUTTON_INACTIVE;
+    if ((button_2_state == BUTTON_INACTIVE) && (val == LOW)){
+        debounce_timer_2 = TIME_50_MS;   // 50ms 
+        button_2_state = BUTTON_PRESSED; 
+    } else if (button_2_state == BUTTON_PRESSED){ // aka 50MS later ...
+      if (val == LOW){
+        button_2_state = BUTTON_HELD; // now, this counts
+        debounce_timer_2 = TIME_20_MS;  // --> read button every 20ms while on hold
+      } else {
+        button_2_state = BUTTON_INACTIVE; // nope, just a glitch
+      }
+    } else if (button_2_state == BUTTON_HELD){
+      if (val == HIGH){
+        debounce_timer_2 = TIME_50_MS;  // 50ms
+        button_2_state = BUTTON_RELEASED;
+      } else {
+        debounce_timer_2 = TIME_20_MS;  // --> read button only every 20ms while on hold
+      }
+    } else if (button_2_state == BUTTON_RELEASED){
+      if (val == HIGH){
+        button_2_state = BUTTON_INACTIVE; // yep, it's released
+      } else {
+        button_2_state = BUTTON_HELD; // nope, just a glitch
+      }
     }
   }
 
@@ -250,25 +276,17 @@ void loop() {
 
 // output mode functions
 void output_fill_matrix_slow(){
-  static int kante = 0;
-
   if (countdown == 0){
-    if ((x%kante==0) || (y%kante==0)) {
-      matrix[y][x] = 1;
-      countdown = TIME_200_MS;
-    } else {
-      matrix[y][x] = 0;
-    }
+    matrix[y][x] = 1;
     x++;
     if (x > 7){
       x = 0;
       y++;
       if (y > 7){
-        // clear_matrix_immediatly();
-        kante += 1;
-        if (kante == 8) { kante = 0; }
+        clear_matrix_immediatly();
       }
     }
+    countdown = TIME_200_MS;
   }
 }
 
