@@ -1,9 +1,15 @@
-#include "TimerOne.h" 
+#include "src/TimerOne/TimerOne.h"
+#include "characters.h"
+
 
 #define ROW_ENABLE HIGH
 #define ROW_DISABLE LOW
 #define COLUMN_ON LOW
 #define COLUMN_OFF HIGH
+
+
+#define TEXT "ABCDEabcde1234567890"
+#define TEXT_SHIFT_SPEED_MS 80
 
 //                     Arduino   AVR    LED Matrix 
 const uint8_t LED_X1 = 2;     // PD2    Pin 13
@@ -24,9 +30,9 @@ const uint8_t LED_Y3 = 19;    // PC5    Pin  7
 const uint8_t LED_Y2 = 12;    // PB4    Pin  2
 const uint8_t LED_Y1 = 13;    // PB5    Pin  5
 
+
 const uint8_t LED_X[8] = {LED_X1, LED_X2, LED_X3, LED_X4, LED_X5, LED_X6, LED_X7, LED_X8};
 const uint8_t LED_Y[8] = {LED_Y1, LED_Y2, LED_Y3, LED_Y4, LED_Y5, LED_Y6, LED_Y7, LED_Y8};
-
 
 const int button_1_Pin = 10;  // PB2        push button SW1
 const int button_2_Pin = 11;  // PB3 (MOSI) push button SW2
@@ -56,6 +62,7 @@ uint8_t matrix[8][8] {
 #define FILL_MATRIX_SLOW        0
 #define FILL_MATRIX_FAST        1
 #define FILL_MATRIX_SPIRAL      2
+
 #define FILL_MATRIX_RANDOM      3
 #define OUTPUT_MODE_MAX         4
 
@@ -256,7 +263,10 @@ void loop() {
   // Call your output mode in this switch
   switch (outputMode){
     case FILL_MATRIX_SLOW:
-      output_fill_matrix_slow();
+      outputShiftString(TEXT);
+      //outputString(TEXT);
+      //displayCharacterOffset(LETTERS[0],3,0);
+      //output_fill_matrix_slow();
       break;
     case FILL_MATRIX_FAST:
       output_fill_matrix_fast();
@@ -362,6 +372,7 @@ void output_fill_matrix_spiral(){
   }
 }
 
+
 unsigned int rng() {
   static unsigned int r = 0;
   r += micros(); // seeded with changing number
@@ -387,4 +398,65 @@ void clear_matrix_immediatly(){
   // reset x and y for further use
   x = 0;
   y = 0;
+}
+
+// Shows sing characters of passed string one after the other
+void outputString(char * text){
+  char * t;
+  int offsetASCII = 0;
+  int xOffset=0;
+  int yOffset=0;
+  
+  for (t = text; *t != '\0'; t++){
+    displayCharacterOffset(ASCII[(int)*t],xOffset,yOffset);
+    delay(500);
+  }
+}
+
+
+//Shifts string through matrix
+void outputShiftString(char * text){
+  char * t;
+  int xOffset=0;
+  int yOffset=0;
+  bool fistrun = true;
+
+  /* iterate over text characters
+   * loop takes car of two characters a the same time
+  */
+  for (t = text; *t != '\0'; t++){
+    
+    for (xOffset = -1; xOffset >= -7; xOffset--){
+      // *********first charcter part***********
+      if (fistrun){
+         xOffset=7;
+         fistrun=false;
+      }
+      displayCharacterOffset(ASCII[(int)*t],xOffset,yOffset);
+
+      // *********second charcter part***********
+      if(xOffset < 0 && *(t+1) != '\0'){
+        displayCharacterOffset(ASCII[(int)*(t+1)],xOffset+7,yOffset);
+      }
+      delay(TEXT_SHIFT_SPEED_MS);
+    }
+  }
+}
+
+void displayCharacter(const byte* image) {
+  for (int i = 0; i < 8; i++) {
+    for (int j = 0; j < 8; j++) {
+      matrix[i][j] = bitRead(image[i],7-j);
+    }
+  }
+}
+
+void displayCharacterOffset(const byte* image, int8_t x, int8_t y) {
+  for (int i = 0; i < 8; i++) {
+    for (int j = 0; j < 8; j++) {
+      if(((j+x) >= 0 && (j+x) < 8) && ((i+y) >= 0 && (i+y) < 8)){
+        matrix[i+y][j+x] = bitRead(image[i],7-j);
+      }
+    }
+  }
 }
