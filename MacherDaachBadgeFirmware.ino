@@ -1,11 +1,12 @@
-
 #include "src/TimerOne/TimerOne.h"
 #include "characters.h"
+
 
 #define ROW_ENABLE HIGH
 #define ROW_DISABLE LOW
 #define COLUMN_ON LOW
 #define COLUMN_OFF HIGH
+
 
 #define TEXT "ABCDEabcde1234567890"
 #define TEXT_SHIFT_SPEED_MS 80
@@ -28,6 +29,10 @@ const uint8_t LED_Y4 = 18;    // PC4    Pin  1
 const uint8_t LED_Y3 = 19;    // PC5    Pin  7
 const uint8_t LED_Y2 = 12;    // PB4    Pin  2
 const uint8_t LED_Y1 = 13;    // PB5    Pin  5
+
+
+const uint8_t LED_X[8] = {LED_X1, LED_X2, LED_X3, LED_X4, LED_X5, LED_X6, LED_X7, LED_X8};
+const uint8_t LED_Y[8] = {LED_Y1, LED_Y2, LED_Y3, LED_Y4, LED_Y5, LED_Y6, LED_Y7, LED_Y8};
 
 const int button_1_Pin = 10;  // PB2        push button SW1
 const int button_2_Pin = 11;  // PB3 (MOSI) push button SW2
@@ -57,7 +62,9 @@ uint8_t matrix[8][8] {
 #define FILL_MATRIX_SLOW        0
 #define FILL_MATRIX_FAST        1
 #define FILL_MATRIX_SPIRAL      2
-#define OUTPUT_MODE_MAX         3
+
+#define FILL_MATRIX_RANDOM      3
+#define OUTPUT_MODE_MAX         4
 
 volatile uint8_t reqModeSwitch = 0;
 volatile uint16_t countdown = 0;
@@ -122,88 +129,27 @@ void display() {
   // LED Matrix multiplexing
   static uint8_t state = 0;
 
-  digitalWrite(LED_X1, ROW_DISABLE);
-  digitalWrite(LED_X2, ROW_DISABLE);
-  digitalWrite(LED_X3, ROW_DISABLE);
-  digitalWrite(LED_X4, ROW_DISABLE);
-  digitalWrite(LED_X5, ROW_DISABLE);
-  digitalWrite(LED_X6, ROW_DISABLE);
-  digitalWrite(LED_X7, ROW_DISABLE);
-  digitalWrite(LED_X8, ROW_DISABLE);
+  if (state==0) {
+    digitalWrite(LED_X[7], ROW_DISABLE);
+  } else {
+    digitalWrite(LED_X[state-1], ROW_DISABLE);
+  }
 
-  if (matrix[0][state] != 0)
-    digitalWrite(LED_Y1, COLUMN_ON);
-  else
-    digitalWrite(LED_Y1, COLUMN_OFF);
-    
-  if (matrix[1][state] != 0)
-    digitalWrite(LED_Y2, COLUMN_ON);
-  else
-    digitalWrite(LED_Y2, COLUMN_OFF);
-  
-  if (matrix[2][state] != 0)
-    digitalWrite(LED_Y3, COLUMN_ON);
-  else
-    digitalWrite(LED_Y3, COLUMN_OFF);
-  
-  if (matrix[3][state] != 0)
-    digitalWrite(LED_Y4, COLUMN_ON);
-  else
-    digitalWrite(LED_Y4, COLUMN_OFF);
-  
-  if (matrix[4][state] != 0)
-    digitalWrite(LED_Y5, COLUMN_ON);
-  else
-    digitalWrite(LED_Y5, COLUMN_OFF);
-  
-  if (matrix[5][state] != 0)
-    digitalWrite(LED_Y6, COLUMN_ON);
-  else
-    digitalWrite(LED_Y6, COLUMN_OFF);
-  
-  if (matrix[6][state] != 0)
-    digitalWrite(LED_Y7, COLUMN_ON);
-  else
-    digitalWrite(LED_Y7, COLUMN_OFF);
-  
-  if (matrix[7][state] != 0)
-    digitalWrite(LED_Y8, COLUMN_ON);
-  else
-    digitalWrite(LED_Y8, COLUMN_OFF);
+  digitalWrite(LED_Y1, !matrix[0][state]);
+  digitalWrite(LED_Y2, !matrix[1][state]);
+  digitalWrite(LED_Y3, !matrix[2][state]);
+  digitalWrite(LED_Y4, !matrix[3][state]);
+  digitalWrite(LED_Y5, !matrix[4][state]);
+  digitalWrite(LED_Y6, !matrix[5][state]);
+  digitalWrite(LED_Y7, !matrix[6][state]);
+  digitalWrite(LED_Y8, !matrix[7][state]);
 
-  switch (state){
-    case 0:
-      digitalWrite(LED_X1, ROW_ENABLE);
-      state = 1;
-      break;
-    case 1:
-      digitalWrite(LED_X2, ROW_ENABLE);
-      state = 2;
-      break;
-    case 2:
-      digitalWrite(LED_X3, ROW_ENABLE);
-      state = 3;
-      break;
-    case 3:
-      digitalWrite(LED_X4, ROW_ENABLE);
-      state = 4;
-      break;
-    case 4:
-      digitalWrite(LED_X5, ROW_ENABLE);
-      state = 5;
-      break;
-    case 5:
-      digitalWrite(LED_X6, ROW_ENABLE);
-      state = 6;
-      break;
-    case 6:
-      digitalWrite(LED_X7, ROW_ENABLE);
-      state = 7;
-      break;
-    case 7 :
-      digitalWrite(LED_X8, ROW_ENABLE);
-      state = 0;
-      break;
+  digitalWrite(LED_X[state], ROW_ENABLE);
+
+  if (state == 7) {
+    state = 0;
+  } else {
+    state += 1;
   }
 
   // Debouncing push buttons
@@ -212,41 +158,63 @@ void display() {
 
   uint8_t val;
 
-  if (debounce_timer_1 > 0) debounce_timer_1--;
-  if (debounce_timer_1 == 0){
+  if (debounce_timer_1 > 0) {
+    debounce_timer_1--;
+  } else {
     val = digitalRead(button_1_Pin);
-    if (button_1_state == BUTTON_INACTIVE && val == LOW){
-      debounce_timer_1 = TIME_50_MS;  // 50ms
-      button_1_state = BUTTON_PRESSED;
-    }
-    else if (button_1_state == BUTTON_PRESSED && val == LOW){
-      button_1_state = BUTTON_HELD;
-    }
-    else if (button_1_state == BUTTON_HELD && val == HIGH){
-      debounce_timer_1 = TIME_50_MS;  // 50ms
-      button_1_state = BUTTON_RELEASED;
-    }
-    else if (button_1_state == BUTTON_RELEASED && val == HIGH){
-      button_1_state = BUTTON_INACTIVE;
+    if ((button_1_state == BUTTON_INACTIVE) && (val == LOW)){
+        debounce_timer_1 = TIME_50_MS;   // 50ms
+        button_1_state = BUTTON_PRESSED;
+    } else if (button_1_state == BUTTON_PRESSED){ // aka 50MS later ...
+      if (val == LOW){
+        button_1_state = BUTTON_HELD; // now, this counts
+        debounce_timer_1 = TIME_20_MS;  // --> read button every 20ms
+      } else {
+        button_1_state = BUTTON_INACTIVE; // nope, just a glitch
+      }
+    } else if (button_1_state == BUTTON_HELD){
+      if (val == HIGH){
+        debounce_timer_1 = TIME_50_MS;  // 50ms
+        button_1_state = BUTTON_RELEASED;
+      } else {
+        debounce_timer_1 = TIME_20_MS;  // --> read button only every 20ms
+      }
+    } else if (button_1_state == BUTTON_RELEASED){
+      if (val == HIGH){
+        button_1_state = BUTTON_INACTIVE; // yep, it's released
+      } else {
+        button_1_state = BUTTON_HELD; // nope, just a glitch
+      }
     }
   }
 
-  if (debounce_timer_2 > 0) debounce_timer_2--;
-  if (debounce_timer_2 == 0){
+  if (debounce_timer_2 > 0) {
+    debounce_timer_2--;
+  } else {
     val = digitalRead(button_2_Pin);
-    if (button_2_state == BUTTON_INACTIVE && val == LOW){
-      debounce_timer_2 = TIME_50_MS;  // 50ms
-      button_2_state = BUTTON_PRESSED;
-    }
-    else if (button_2_state == BUTTON_PRESSED && val == LOW){
-      button_2_state = BUTTON_HELD;
-    }
-    else if (button_2_state == BUTTON_HELD && val == HIGH){
-      debounce_timer_2 = TIME_50_MS;  // 50ms
-      button_2_state = BUTTON_RELEASED;
-    }
-    else if (button_2_state == BUTTON_RELEASED && val == HIGH){
-      button_2_state = BUTTON_INACTIVE;
+    if ((button_2_state == BUTTON_INACTIVE) && (val == LOW)){
+        debounce_timer_2 = TIME_50_MS;   // 50ms
+        button_2_state = BUTTON_PRESSED;
+    } else if (button_2_state == BUTTON_PRESSED){ // aka 50MS later ...
+      if (val == LOW){
+        button_2_state = BUTTON_HELD; // now, this counts
+        debounce_timer_2 = TIME_20_MS;  // --> read button every 20ms while on hold
+      } else {
+        button_2_state = BUTTON_INACTIVE; // nope, just a glitch
+      }
+    } else if (button_2_state == BUTTON_HELD){
+      if (val == HIGH){
+        debounce_timer_2 = TIME_50_MS;  // 50ms
+        button_2_state = BUTTON_RELEASED;
+      } else {
+        debounce_timer_2 = TIME_20_MS;  // --> read button only every 20ms while on hold
+      }
+    } else if (button_2_state == BUTTON_RELEASED){
+      if (val == HIGH){
+        button_2_state = BUTTON_INACTIVE; // yep, it's released
+      } else {
+        button_2_state = BUTTON_HELD; // nope, just a glitch
+      }
     }
   }
 
@@ -268,7 +236,6 @@ void display() {
 }
 
 void loop() {
-  
   static uint8_t outputMode = 0;
 
   if (reqModeSwitch){
@@ -306,6 +273,9 @@ void loop() {
       break;
     case FILL_MATRIX_SPIRAL:
       output_fill_matrix_spiral();
+      break;
+    case FILL_MATRIX_RANDOM:
+      output_fill_matrix_random();
       break;
     default:
       break;
@@ -402,6 +372,20 @@ void output_fill_matrix_spiral(){
   }
 }
 
+
+unsigned int rng() {
+  static unsigned int r = 0;
+  r += micros(); // seeded with changing number
+  r ^= r << 2; r ^= r >> 7; r ^= r << 7;
+  return (r);
+}
+
+void output_fill_matrix_random() {
+    x = rng() / 8192;
+    y = rng() / 8192;
+    matrix[y][x] = !matrix[y][x];
+}
+
 // add your output mode function here
 
 // Helper functions
@@ -415,7 +399,6 @@ void clear_matrix_immediatly(){
   x = 0;
   y = 0;
 }
-
 
 // Shows sing characters of passed string one after the other
 void outputString(char * text){

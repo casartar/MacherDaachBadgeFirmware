@@ -39,8 +39,8 @@ Vor dem Anschließen der Spannungsversorgung des Arduinos, muss die Batterie ent
 
 ### Board anlegen
 Im Arduino Ordner folgende Struktur anlegen:
-*hardware/macherDaachBadge/avr*
-In den avr Ordner dann die boards.txt Datei kopieren.
+*hardware/macherDaachBadge/avr/bootloaders/atmega*
+In den avr Ordner dann die boards.txt Datei und in den atmega Ordner die optiboot_atmega328.hex kopieren.
 
 In dieser Datei ist definiert, dass wir keinen Standard Arduino UNO benutzen sondern einen Arduino ohne Quarz und mit einem Takt von 1 MHz.
 
@@ -76,4 +76,5 @@ Im Macher_Daach_Badge_Firmware Sketch:
 1. Werkzeuge -> Board -> Macher Daach Badge (1 MHz internal clock)
 2. Programmer -> Arduino as ISP
 3. Überprüfen
-4. Shift gedrückt halten und Hochladen
+4. !!! Vor dem aller ersten Programmieren einmal Werkzeuge -> Bootloader brennen
+5. Shift gedrückt halten und Hochladen
