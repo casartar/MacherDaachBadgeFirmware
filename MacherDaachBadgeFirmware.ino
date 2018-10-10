@@ -255,6 +255,9 @@ void loop() {
         break;
       case FILL_MATRIX_FAST:
         break;
+      case FILL_MATRIX_SPIRAL:
+        x = -1;
+        break;
       default:
         break;
     }
