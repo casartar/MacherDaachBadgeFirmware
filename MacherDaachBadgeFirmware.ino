@@ -76,6 +76,7 @@ uint8_t y = 0;
 #define TIME_200_MS           (200/TIMER_PERIOD_IN_MS)
 #define TIME_50_MS            (50/TIMER_PERIOD_IN_MS)
 #define TIME_20_MS            (20/TIMER_PERIOD_IN_MS)
+#define TIME_10_MS            (10/TIMER_PERIOD_IN_MS)
 
 void setup() {
   
@@ -123,43 +124,10 @@ void setup() {
   Timer1.attachInterrupt(display, TIMER_PERIOD_IN_MS*1000);
 }
 
-void display() {
-
-  // LED Matrix multiplexing
-  static uint8_t state = 0;
-  
-  if (state==0) {
-    digitalWrite(LED_X[7], ROW_DISABLE);
-  } else {
-    digitalWrite(LED_X[state-1], ROW_DISABLE);
-  }
-
-  //digitalWrite(LED_Y1, !matrix[0][state]);
-  /*
-  digitalWrite(LED_Y1, !bitRead(matrix[0],state));
-  digitalWrite(LED_Y2, !bitRead(matrix[1],state));
-  digitalWrite(LED_Y3, !bitRead(matrix[2],state));
-  digitalWrite(LED_Y4, !bitRead(matrix[3],state));
-  digitalWrite(LED_Y5, !bitRead(matrix[4],state));
-  digitalWrite(LED_Y6, !bitRead(matrix[5],state));
-  digitalWrite(LED_Y7, !bitRead(matrix[6],state));
-  digitalWrite(LED_Y8, !bitRead(matrix[7],state));
-  */ 
-  setRow(~matrix[state]); 
-  digitalWrite(LED_X[state], ROW_ENABLE);
-
-  if (state == 7) {
-    state = 0;
-  } else {
-    state += 1;
-  }
-  
-  // Countdown
-  if (countdown > 0) countdown--;
-}
 
 void loop() {
-  output_fill_matrix_slow();
+  outputString("123abc");
+  //output_fill_matrix_slow();
 }
 
 // output mode functions
@@ -176,34 +144,68 @@ void output_fill_matrix_slow(){
         clear_matrix_immediatly();
       }
     }
-    countdown = TIME_200_MS;
+    countdown = TIME_50_MS;
   }
 }
 
-// Helper functions
-void clear_matrix_immediatly(){
-  memset(matrix, 0, 8*sizeof(*matrix));
-  x = 0;
-  y = 0;
+// Shows sing characters of passed string one after the other
+void outputString(char * text){
+  char * t;
+  int offsetASCII = 0;
+  int xOffset=0;
+  int yOffset=0;
+  
+  for (t = text; *t != '\0'; t++){
+    displayCharacterOffset(ASCII[(int)*t],xOffset,yOffset);
+    delay(500);
+  }
 }
 
-// Helper functions
-void clear_matrix_immediatly_without_reset(){
-  memset(matrix, 0, 8*sizeof(*matrix));
-}
+//Shifts string through matrix
+void outputShiftString(char * text){
+  char * t;
+  int xOffset=0;
+  int yOffset=0;
+  bool fistrun = true;
 
-void matrixSetPixel(byte x, byte y, bool value){
-  bitWrite(matrix[x], y, value);
-}
-
-void setRow(uint8_t values){
-    uint8_t portcValues = values & B00111111; //remove the last 2 Bits from value
-    uint8_t portbValues = values & B11000000; //remove the last 2 Bits from value
+  /* iterate over text characters
+   * loop takes car of two characters a the same time
+  */
+  for (t = text; *t != '\0'; t++){
     
-    PORTC       = PORTC  & B11000000; //reset PORTC but not PC6 and PC7
-    PORTC       = portcValues | PORTC; // final PORTC values
+    for (xOffset = -1; xOffset >= -7; xOffset--){
+      // *********first charcter part***********
+      if (fistrun){
+         xOffset=7;
+         fistrun=false;
+      }
+      displayCharacterOffset(ASCII[(int)*t],xOffset,yOffset);
 
-    PORTB       = PORTB & B11001111;
-    portbValues = portbValues >> 2 ;
-    PORTB       = portbValues | PORTB;
+      // *********second charcter part***********
+      if(xOffset < 0 && *(t+1) != '\0'){
+        displayCharacterOffset(ASCII[(int)*(t+1)],xOffset+7,yOffset);
+      }
+      delay(TEXT_SHIFT_SPEED_MS);
+    }
+  }
+}
+
+void displayCharacter(const byte* image) {
+  for (int i = 0; i < 8; i++) {
+    for (int j = 0; j < 8; j++) {
+      //matrixSetPixel(i,j,bitRead(image[i],7-j));
+      matrix[i] = image[i];
+    }
+  }
+}
+
+void displayCharacterOffset(const byte* image, int8_t x, int8_t y) {
+  for (int i = 0; i < 8; i++) {
+    for (int j = 0; j < 8; j++) {
+      if(((j+x) >= 0 && (j+x) < 8) && ((i+y) >= 0 && (i+y) < 8)){
+        //matrixSetPixel(j+x,i+y, bitRead(image[i],7-j));
+        //bitWrite( matrix[i+y], j+x, bitRead(image[i],7-j));
+      }
+    }
+  }
 }
