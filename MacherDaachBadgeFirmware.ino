@@ -6,7 +6,7 @@
 #define COLUMN_ON LOW
 #define COLUMN_OFF HIGH
 
-#define TEXT "holymoly"
+#define TEXT "ABCDEFabcdef1234567890"
 #define TEXT_SHIFT_SPEED_MS 50
 
 //                     Arduino   AVR    LED Matrix 
@@ -154,11 +154,11 @@ void loop() {
   // Call your output mode in this switch
   switch (outputMode){
     case FILL_MATRIX_SLOW:
-      //outputShiftString(TEXT);
-      // outputString(TEXT);
+      outputShiftString(TEXT);
+      //outputString(TEXT);
       //displayCharacterOffset(LETTERS[0],3,0);
       //output_fill_matrix_slow();
-      output_fill_matrix_random();
+      //output_fill_matrix_random();
       break;
     case FILL_MATRIX_FAST:
       output_fill_matrix_fast();
@@ -362,8 +362,10 @@ void displayCharacterOffset(const byte* image, int8_t x, int8_t y) {
     for (int j = 0; j < 8; j++) {
       if(((j+x) >= 0 && (j+x) < 8) && ((i+y) >= 0 && (i+y) < 8)){
         // set pixel
-        //matrix[8-(i+y)] = image[i] << j;
-        matrixSetPixel(j+x,7-(i+y), bitRead(image[i],7-j));
+        //matrix[8-(i+y)] = pgm_read_byte_near(image + i);
+        
+        //<< j;
+        matrixSetPixel(j+x,7-(i+y), bitRead(pgm_read_byte_near(image + i),7-j));
         //matrix[i+y][j+x] = bitRead(image[i],7-j);
       }
     }
