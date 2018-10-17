@@ -6,8 +6,8 @@
 #define COLUMN_ON LOW
 #define COLUMN_OFF HIGH
 
-#define TEXT "ABCDEabcde1234567890"
-#define TEXT_SHIFT_SPEED_MS 80
+#define TEXT "holymoly"
+#define TEXT_SHIFT_SPEED_MS 50
 
 //                     Arduino   AVR    LED Matrix 
 const uint8_t LED_X1 = 2;     // PD2    Pin 13
@@ -79,7 +79,6 @@ uint8_t y = 0;
 #define TIME_10_MS            (10/TIMER_PERIOD_IN_MS)
 
 void setup() {
-  
   pinMode(LED_X1, OUTPUT);
   pinMode(LED_X2, OUTPUT);
   pinMode(LED_X3, OUTPUT);
@@ -126,8 +125,56 @@ void setup() {
 
 
 void loop() {
-  outputString("123abc");
+  //outputShiftString("123abc");
   //output_fill_matrix_slow();
+  static uint8_t outputMode = 0;
+
+  if (reqModeSwitch){
+    // both buttons were pressed for 3 seconds
+    reqModeSwitch = 0;
+
+    // create a defined state and turn off all leds
+    clear_matrix_immediatly();
+
+    // switch output mode
+    outputMode++;
+    if (outputMode == OUTPUT_MODE_MAX) outputMode = 0;
+
+    // Do initializations for a new output mode here if necessary
+    switch (outputMode){
+      case FILL_MATRIX_SLOW:
+        break;
+      case FILL_MATRIX_FAST:
+        break;
+      default:
+        break;
+    }
+  }
+
+  // Call your output mode in this switch
+  switch (outputMode){
+    case FILL_MATRIX_SLOW:
+      //outputShiftString(TEXT);
+      // outputString(TEXT);
+      //displayCharacterOffset(LETTERS[0],3,0);
+      //output_fill_matrix_slow();
+      output_fill_matrix_random();
+      break;
+    case FILL_MATRIX_FAST:
+      output_fill_matrix_fast();
+      break;
+    case FILL_MATRIX_SPIRAL:
+      output_fill_matrix_spiral();
+      break;
+    case FILL_MATRIX_RANDOM:
+      output_fill_matrix_random();
+      break;
+    case OUTPUT_TEXT:
+      outputShiftString(TEXT);
+      break;
+    default:
+      break;
+  }
 }
 
 // output mode functions
@@ -144,8 +191,103 @@ void output_fill_matrix_slow(){
         clear_matrix_immediatly();
       }
     }
-    countdown = TIME_50_MS;
+    countdown = TIME_200_MS;
   }
+}
+
+void output_fill_matrix_fast(){
+  if (countdown == 0){
+    // set pixel
+    matrixSetPixel(x,y, true);
+    x++;
+    if (x > 7){
+      x = 0;
+      y++;
+      if (y > 7){
+        clear_matrix_immediatly();
+      }
+    }
+    countdown = TIME_20_MS;
+  }
+}
+
+void output_fill_matrix_spiral(){
+  static uint8_t round = 0;
+  static uint8_t mode = 1;  // 1 = fill, 0 = clear
+  static uint8_t direction = 0;
+
+  if (countdown == 0){
+    if (mode == 1) {
+      // fill
+      if (x == round && y == round + 1) {
+        direction = 0;
+        round++;
+      } else if (x == 7 - round && y == round) {
+        direction = 1;
+      } else if (x == 7 -round && y == 7 - round) {
+        direction = 2;
+      } else if (x == round && y == 7 - round) {
+        direction = 3;
+      }
+
+    } else {
+      // clear
+      if (x == round && y == round) {
+        direction = 0;
+      } else if (x == 7 - round && y == round) {
+        direction = 1;
+      } else if (x == 7 - round && y == 7 - round) {
+        direction = 2;
+      } else if (x == round - 1 && y == 7 - round) {
+        direction = 3;
+        round--;
+      }
+    }
+
+    switch(direction) {
+      case 0: x++; break;  // to the right
+      case 1: y++; break;  // upwards
+      case 2: x--; break;  // to the left
+      case 3: y--; break;  // downwards
+    }
+
+    matrixSetPixel(x, y, mode);
+
+    if (mode == 1 && x == 3 && y == 4) {  // last pixel activ - switch to turn off
+      mode = 0;
+      direction = 0;
+      x--;
+      y--;
+    }
+
+    if (mode == 0 && x == 0 && y == 7) {  // last pixel clear - refill again
+      mode = 1;
+      direction = 0;
+      x = -1;
+      y = 0;
+    }
+    countdown = TIME_20_MS;
+  }
+}
+
+unsigned int rng() {
+  static unsigned int r = 0;
+  r += micros(); // seeded with changing number
+  r ^= r << 2;
+  r ^= r >> 7;
+  r ^= r << 7;
+  return (r);
+}
+
+void output_fill_matrix_random() {
+    static uint8_t i = 0;
+    x = rng() / 256;
+
+    matrix[i] = x;
+    i++;
+    if (i >7){
+      i=0;
+    }
 }
 
 // Shows sing characters of passed string one after the other
@@ -156,46 +298,62 @@ void outputString(char * text){
   int yOffset=0;
   
   for (t = text; *t != '\0'; t++){
-    displayCharacterOffset(ASCII[(int)*t],xOffset,yOffset);
+    displayCharacter(ASCII[(int)*t]);
     delay(500);
   }
 }
 
 //Shifts string through matrix
 void outputShiftString(char * text){
-  char * t;
-  int xOffset=0;
-  int yOffset=0;
-  bool fistrun = true;
+  char *t;
+  static int i = 0;
+  static int xOffset = -1;
+  static int yOffset = 0;
+  static bool fistrun = true;
 
   /* iterate over text characters
    * loop takes car of two characters a the same time
   */
-  for (t = text; *t != '\0'; t++){
-    
-    for (xOffset = -1; xOffset >= -7; xOffset--){
-      // *********first charcter part***********
-      if (fistrun){
-         xOffset=7;
-         fistrun=false;
-      }
-      displayCharacterOffset(ASCII[(int)*t],xOffset,yOffset);
 
-      // *********second charcter part***********
-      if(xOffset < 0 && *(t+1) != '\0'){
-        displayCharacterOffset(ASCII[(int)*(t+1)],xOffset+7,yOffset);
-      }
-      delay(TEXT_SHIFT_SPEED_MS);
+  if (countdown == 0){
+    //remember last drawn char
+    t = text;
+    t = t + i;
+
+    // if first character start from left side
+    if (fistrun){
+      xOffset=7;
+      fistrun=false;
     }
+    // draw char
+    displayCharacterOffset(ASCII[(int)*t],xOffset,yOffset);
+    
+    // *********second charcter part***********
+    if(xOffset < -1 && *(t+1) != '\0'){
+      displayCharacterOffset(ASCII[(int)*(t+1)],xOffset+7,yOffset);
+    }
+    
+    countdown = TEXT_SHIFT_SPEED_MS;
+    
+    //reset if end of string
+    if(*t == '\0'){
+      i = 0;     
+      //xOffset=0;   
+      fistrun = true;  
+    }
+    // if charachter shift completed
+    if(xOffset <= -8){
+      xOffset=-1;
+      i++;
+    }
+    //set X offset for next cycle
+    xOffset--;
   }
 }
 
 void displayCharacter(const byte* image) {
   for (int i = 0; i < 8; i++) {
-    for (int j = 0; j < 8; j++) {
-      //matrixSetPixel(i,j,bitRead(image[i],7-j));
-      matrix[i] = image[i];
-    }
+    matrix[8-i] = image[i];
   }
 }
 
@@ -203,8 +361,10 @@ void displayCharacterOffset(const byte* image, int8_t x, int8_t y) {
   for (int i = 0; i < 8; i++) {
     for (int j = 0; j < 8; j++) {
       if(((j+x) >= 0 && (j+x) < 8) && ((i+y) >= 0 && (i+y) < 8)){
-        //matrixSetPixel(j+x,i+y, bitRead(image[i],7-j));
-        //bitWrite( matrix[i+y], j+x, bitRead(image[i],7-j));
+        // set pixel
+        //matrix[8-(i+y)] = image[i] << j;
+        matrixSetPixel(j+x,7-(i+y), bitRead(image[i],7-j));
+        //matrix[i+y][j+x] = bitRead(image[i],7-j);
       }
     }
   }
