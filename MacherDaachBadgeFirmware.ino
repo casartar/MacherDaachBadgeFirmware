@@ -364,7 +364,7 @@ void pong(){
   static uint8_t fields_valid = 2; // rebounce if button was pressed 
 
   // check rebounce
-  if(direction == false && (pos_act > 7-fields_valid) && button_2_state == BUTTON_HELD || direction == true && (pos_act < 0 + fields_valid)  && button_1_state == BUTTON_HELD){
+  if(direction == false && (pos_act > 7-fields_valid) && button_2_state == BUTTON_PRESSED || direction == true && (pos_act < 0 + fields_valid)  && button_1_state == BUTTON_PRESSED){
     direction = !direction;
   }
   
