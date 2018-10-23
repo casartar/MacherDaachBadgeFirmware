@@ -66,7 +66,6 @@ uint8_t matrix[8] {
 
 #define OUTPUT_MODE_MAX         7
 
-
 volatile uint8_t reqModeSwitch = 0;
 volatile uint16_t countdown = 0;
 
@@ -150,6 +149,7 @@ void loop() {
         break;
       case FILL_MATRIX_SPIRAL:
         x = -1;
+        output_fill_matrix_spiral(true);
         break;
       default:
         break;
@@ -169,7 +169,7 @@ void loop() {
       output_fill_matrix_fast();
       break;
     case FILL_MATRIX_SPIRAL:
-      output_fill_matrix_spiral();
+      output_fill_matrix_spiral(false);
       break;
     case FILL_MATRIX_RANDOM:
       output_fill_matrix_random();

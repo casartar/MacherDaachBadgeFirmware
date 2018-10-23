@@ -1,9 +1,13 @@
-
-void output_fill_matrix_spiral(){
+void output_fill_matrix_spiral(bool init){
   static uint8_t round = 0;
   static uint8_t mode = 1;  // 1 = fill, 0 = clear
   static uint8_t direction = 0;
 
+  if(init){
+    round = 0;
+    direction = 0;  
+  }
+  
   if (countdown == 0){
     if (mode == 1) {
       // fill
