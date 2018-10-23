@@ -1,12 +1,14 @@
 #include "src/TimerOne/TimerOne.h"
 #include "characters.h"
 
+
+#define TEXT "ABCDEFabcdef1234567890"
+
 #define ROW_ENABLE HIGH
 #define ROW_DISABLE LOW
 #define COLUMN_ON LOW
 #define COLUMN_OFF HIGH
 
-#define TEXT "ABCDEFabcdef1234567890"
 #define TEXT_SHIFT_SPEED_MS 50
 
 //                     Arduino   AVR    LED Matrix 
@@ -61,8 +63,10 @@ uint8_t matrix[8] {
 #define FILL_MATRIX_SPIRAL      2
 #define FILL_MATRIX_RANDOM      3
 #define OUTPUT_TEXT             4
+#define PONG                    5
+#define SNAKE                   6
 
-#define OUTPUT_MODE_MAX         5
+#define OUTPUT_MODE_MAX         7
 
 volatile uint8_t reqModeSwitch = 0;
 volatile uint16_t countdown = 0;
@@ -123,7 +127,6 @@ void setup() {
   Timer1.attachInterrupt(display, TIMER_PERIOD_IN_MS*1000);
 }
 
-
 void loop() {
   //outputShiftString("123abc");
   //output_fill_matrix_slow();
@@ -146,6 +149,9 @@ void loop() {
         break;
       case FILL_MATRIX_FAST:
         break;
+      case FILL_MATRIX_SPIRAL:
+        x = -1;
+        break;
       default:
         break;
     }
@@ -154,11 +160,10 @@ void loop() {
   // Call your output mode in this switch
   switch (outputMode){
     case FILL_MATRIX_SLOW:
-      pong();
       //outputShiftString(TEXT);
       //outputString(TEXT);
       //displayCharacterOffset(LETTERS[0],3,0);
-      //output_fill_matrix_slow();
+      output_fill_matrix_slow();
       //output_fill_matrix_random();
       break;
     case FILL_MATRIX_FAST:
@@ -173,245 +178,14 @@ void loop() {
     case OUTPUT_TEXT:
       outputShiftString(TEXT);
       break;
+    case PONG:
+      pong();
+      break;
+    case SNAKE:
+      snake();
+      break;
     default:
       break;
-  }
-}
-
-// output mode functions
-void output_fill_matrix_slow(){
-  if (countdown == 0){
-    // set pixel
-    //clear_matrix_immediatly_without_reset();
-    matrixSetPixel(x,y, true);
-    x++;
-    if (x > 7){
-      x = 0;
-      y++;
-      if (y > 7){
-        clear_matrix_immediatly();
-      }
-    }
-    countdown = TIME_200_MS;
-  }
-}
-
-void output_fill_matrix_fast(){
-  if (countdown == 0){
-    // set pixel
-    matrixSetPixel(x,y, true);
-    x++;
-    if (x > 7){
-      x = 0;
-      y++;
-      if (y > 7){
-        clear_matrix_immediatly();
-      }
-    }
-    countdown = TIME_20_MS;
-  }
-}
-
-void output_fill_matrix_spiral(){
-  static uint8_t round = 0;
-  static uint8_t mode = 1;  // 1 = fill, 0 = clear
-  static uint8_t direction = 0;
-
-  if (countdown == 0){
-    if (mode == 1) {
-      // fill
-      if (x == round && y == round + 1) {
-        direction = 0;
-        round++;
-      } else if (x == 7 - round && y == round) {
-        direction = 1;
-      } else if (x == 7 -round && y == 7 - round) {
-        direction = 2;
-      } else if (x == round && y == 7 - round) {
-        direction = 3;
-      }
-
-    } else {
-      // clear
-      if (x == round && y == round) {
-        direction = 0;
-      } else if (x == 7 - round && y == round) {
-        direction = 1;
-      } else if (x == 7 - round && y == 7 - round) {
-        direction = 2;
-      } else if (x == round - 1 && y == 7 - round) {
-        direction = 3;
-        round--;
-      }
-    }
-
-    switch(direction) {
-      case 0: x++; break;  // to the right
-      case 1: y++; break;  // upwards
-      case 2: x--; break;  // to the left
-      case 3: y--; break;  // downwards
-    }
-
-    matrixSetPixel(x, y, mode);
-
-    if (mode == 1 && x == 3 && y == 4) {  // last pixel activ - switch to turn off
-      mode = 0;
-      direction = 0;
-      x--;
-      y--;
-    }
-
-    if (mode == 0 && x == 0 && y == 7) {  // last pixel clear - refill again
-      mode = 1;
-      direction = 0;
-      x = -1;
-      y = 0;
-    }
-    countdown = TIME_20_MS;
-  }
-}
-
-unsigned int rng() {
-  static unsigned int r = 0;
-  r += micros(); // seeded with changing number
-  r ^= r << 2;
-  r ^= r >> 7;
-  r ^= r << 7;
-  return (r);
-}
-
-void output_fill_matrix_random() {
-    static uint8_t i = 0;
-    if(countdown == 0){
-      x = rng() / 256;
-
-      matrix[i] = x;
-      i++;
-      if (i >7){
-        i=0;
-      }
-      countdown = TIME_20_MS;
-    }
-    
-}
-
-// Shows sing characters of passed string one after the other
-void outputString(char * text){
-  char * t;
-  int offsetASCII = 0;
-  int xOffset=0;
-  int yOffset=0;
-  
-  for (t = text; *t != '\0'; t++){
-    displayCharacter(ASCII[(int)*t]);
-    delay(500);
-  }
-}
-
-//Shifts string through matrix
-void outputShiftString(char * text){
-  char *t;
-  static int i = 0;
-  static int xOffset = -1;
-  static int yOffset = 0;
-  static bool fistrun = true;
-
-  /* iterate over text characters
-   * loop takes car of two characters a the same time
-  */
-
-  if (countdown == 0){
-    //remember last drawn char
-    t = text;
-    t = t + i;
-
-    // if first character start from left side
-    if (fistrun){
-      xOffset=7;
-      fistrun=false;
-    }
-    // draw char
-    displayCharacterOffset(ASCII[(int)*t],xOffset,yOffset);
-    
-    // *********second charcter part***********
-    if(xOffset < -1 && *(t+1) != '\0'){
-      displayCharacterOffset(ASCII[(int)*(t+1)],xOffset+7,yOffset);
-    }
-    
-    countdown = TEXT_SHIFT_SPEED_MS;
-    
-    //reset if end of string
-    if(*t == '\0'){
-      i = 0;     
-      //xOffset=0;   
-      fistrun = true;  
-    }
-    // if charachter shift completed
-    if(xOffset <= -8){
-      xOffset=-1;
-      i++;
-    }
-    //set X offset for next cycle
-    xOffset--;
-  }
-}
-
-void pong(){
-  static uint8_t speed = 100;
-  static bool start_left = true;
-  //static uint8_t difficult_a = 0;
-  //static uint8_t difficult_b = 0;
-  static uint8_t points_a = 0;
-  static uint8_t points_b = 0;
-  static uint8_t pos_act = 0;
-  static bool direction = 0; // 0 = right
-  static uint8_t fields_valid = 2; // rebounce if button was pressed 
-
-  // check rebounce
-  if(direction == false && (pos_act > 7-fields_valid) && button_2_state == BUTTON_PRESSED || direction == true && (pos_act < 0 + fields_valid)  && button_1_state == BUTTON_PRESSED){
-    direction = !direction;
-  }
-  
-  if (countdown == 0){
-
-    if(direction){
-      pos_act--;
-    }else{
-      pos_act++;
-    }
-  
-    // check for points
-    // act_pos is unsigned -> values greater 7 is a point for A or B depending on direction
-    if(pos_act > 7){
-      if (direction){
-        points_b++;
-      }else{
-        points_a++;
-      }
-      
-      start_left != start_left;
-      if(start_left){
-        pos_act=0;
-        direction=0;
-      }else{
-        pos_act=7;
-        direction=1;
-      }
-      speed =100;
-    }
-
-    if(points_a > 7 || points_b > 7){
-      points_a=0;
-      points_b=0;
-    }
-    // reset last frame
-    clear_matrix_immediatly_without_reset();
-    // draw new frame
-    matrixSetPixel(pos_act, 4, true);
-    matrixSetPixel(points_a, 0, true);
-    matrixSetPixel(points_b, 7, true);
-    speed--;
-    countdown = speed;
   }
 }
 
