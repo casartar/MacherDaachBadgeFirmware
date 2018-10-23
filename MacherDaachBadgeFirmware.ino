@@ -1,7 +1,6 @@
 #include "src/TimerOne/TimerOne.h"
 #include "characters.h"
 
-
 #define TEXT "ABCDEFabcdef1234567890"
 
 #define ROW_ENABLE HIGH
@@ -151,6 +150,7 @@ void loop() {
         break;
       case FILL_MATRIX_SPIRAL:
         x = -1;
+        output_fill_matrix_spiral(true);
         break;
       default:
         break;
@@ -170,7 +170,7 @@ void loop() {
       output_fill_matrix_fast();
       break;
     case FILL_MATRIX_SPIRAL:
-      output_fill_matrix_spiral();
+      output_fill_matrix_spiral(false);
       break;
     case FILL_MATRIX_RANDOM:
       output_fill_matrix_random();
