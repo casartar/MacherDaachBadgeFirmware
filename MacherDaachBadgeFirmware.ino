@@ -1,7 +1,7 @@
 #include "src/TimerOne/TimerOne.h"
 #include "characters.h"
 
-#define TEXT "ABCDEFabcdef1234567890"
+#define TEXT "Macher Daach 2018"
 #define TEXT_SHIFT_SPEED_MS 80
 
 #define ROW_ENABLE HIGH
@@ -56,15 +56,13 @@ uint8_t matrix[8] {
 };
 
 // Add here a define for your output mode and increase OUTPUT_MODE_MAX accordingly
-#define FILL_MATRIX_SLOW        0
-#define FILL_MATRIX_FAST        1
-#define FILL_MATRIX_SPIRAL      2
-#define FILL_MATRIX_RANDOM      3
-#define OUTPUT_TEXT             4
-#define PONG                    5
-#define SNAKE                   6
+#define OUTPUT_TEXT             0
+#define FILL_MATRIX_SPIRAL      1
+#define FILL_MATRIX_RANDOM      2
+#define PONG                    3
+#define SNAKE                   4
 
-#define OUTPUT_MODE_MAX         7
+#define OUTPUT_MODE_MAX         5
 
 volatile uint8_t reqModeSwitch = 0;
 volatile uint16_t countdown = 0;
@@ -143,10 +141,6 @@ void loop() {
 
     // Do initializations for a new output mode here if necessary
     switch (outputMode){
-      case FILL_MATRIX_SLOW:
-        break;
-      case FILL_MATRIX_FAST:
-        break;
       case FILL_MATRIX_SPIRAL:
         x = -1;
         output_fill_matrix_spiral(true);
@@ -158,24 +152,14 @@ void loop() {
 
   // Call your output mode in this switch
   switch (outputMode){
-    case FILL_MATRIX_SLOW:
-      //outputShiftString(TEXT);
-      //outputString(TEXT);
-      //displayCharacterOffset(LETTERS[0],3,0);
-      output_fill_matrix_slow();
-      //output_fill_matrix_random();
-      break;
-    case FILL_MATRIX_FAST:
-      output_fill_matrix_fast();
+    case OUTPUT_TEXT:
+      outputShiftString(TEXT);
       break;
     case FILL_MATRIX_SPIRAL:
       output_fill_matrix_spiral(false);
       break;
     case FILL_MATRIX_RANDOM:
       output_fill_matrix_random();
-      break;
-    case OUTPUT_TEXT:
-      outputShiftString(TEXT);
       break;
     case PONG:
       pong();
