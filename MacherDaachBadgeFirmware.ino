@@ -1,15 +1,13 @@
 #include "src/TimerOne/TimerOne.h"
 #include "characters.h"
 
-
 #define TEXT "ABCDEFabcdef1234567890"
+#define TEXT_SHIFT_SPEED_MS 80
 
 #define ROW_ENABLE HIGH
 #define ROW_DISABLE LOW
 #define COLUMN_ON LOW
 #define COLUMN_OFF HIGH
-
-#define TEXT_SHIFT_SPEED_MS 50
 
 //                     Arduino   AVR    LED Matrix 
 const uint8_t LED_X1 = 2;     // PD2    Pin 13
@@ -67,6 +65,7 @@ uint8_t matrix[8] {
 #define SNAKE                   6
 
 #define OUTPUT_MODE_MAX         7
+
 
 volatile uint8_t reqModeSwitch = 0;
 volatile uint16_t countdown = 0;
@@ -188,4 +187,3 @@ void loop() {
       break;
   }
 }
-
