@@ -1,15 +1,13 @@
 #include "src/TimerOne/TimerOne.h"
 #include "characters.h"
 
+#define TEXT "ABCDEFabcdef1234567890"
+#define TEXT_SHIFT_SPEED_MS 80
 
 #define ROW_ENABLE HIGH
 #define ROW_DISABLE LOW
 #define COLUMN_ON LOW
 #define COLUMN_OFF HIGH
-
-
-#define TEXT "ABCDEabcde1234567890"
-#define TEXT_SHIFT_SPEED_MS 80
 
 //                     Arduino   AVR    LED Matrix 
 const uint8_t LED_X1 = 2;     // PD2    Pin 13
@@ -30,7 +28,6 @@ const uint8_t LED_Y3 = 19;    // PC5    Pin  7
 const uint8_t LED_Y2 = 12;    // PB4    Pin  2
 const uint8_t LED_Y1 = 13;    // PB5    Pin  5
 
-
 const uint8_t LED_X[8] = {LED_X1, LED_X2, LED_X3, LED_X4, LED_X5, LED_X6, LED_X7, LED_X8};
 const uint8_t LED_Y[8] = {LED_Y1, LED_Y2, LED_Y3, LED_Y4, LED_Y5, LED_Y6, LED_Y7, LED_Y8};
 
@@ -47,30 +44,34 @@ typedef enum{
 volatile button_state button_1_state = BUTTON_INACTIVE;
 volatile button_state button_2_state = BUTTON_INACTIVE;
 
-uint8_t matrix[8][8] {
-  0,0,0,0,0,0,0,0,
-  0,0,0,0,0,0,0,0,
-  0,0,0,0,0,0,0,0,
-  0,0,0,0,0,0,0,0,
-  0,0,0,0,0,0,0,0,
-  0,0,0,0,0,0,0,0,
-  0,0,0,0,0,0,0,0,
-  0,0,0,0,0,0,0,0,
+uint8_t matrix[8] {
+  B00000000,
+  B00000000,
+  B00000000,
+  B00000000,
+  B00000000,
+  B00000000,
+  B00000000,
+  B00000000
 };
 
 // Add here a define for your output mode and increase OUTPUT_MODE_MAX accordingly
 #define FILL_MATRIX_SLOW        0
 #define FILL_MATRIX_FAST        1
 #define FILL_MATRIX_SPIRAL      2
-
 #define FILL_MATRIX_RANDOM      3
-#define OUTPUT_MODE_MAX         4
+#define OUTPUT_TEXT             4
+#define PONG                    5
+#define SNAKE                   6
+
+#define OUTPUT_MODE_MAX         7
+
 
 volatile uint8_t reqModeSwitch = 0;
 volatile uint16_t countdown = 0;
 
-int8_t x = 0;
-int8_t y = 0;
+uint8_t x = 0;
+uint8_t y = 0;
 
 #define TIMER_PERIOD_IN_MS   2
 
@@ -78,6 +79,7 @@ int8_t y = 0;
 #define TIME_200_MS           (200/TIMER_PERIOD_IN_MS)
 #define TIME_50_MS            (50/TIMER_PERIOD_IN_MS)
 #define TIME_20_MS            (20/TIMER_PERIOD_IN_MS)
+#define TIME_10_MS            (10/TIMER_PERIOD_IN_MS)
 
 void setup() {
   pinMode(LED_X1, OUTPUT);
@@ -124,118 +126,9 @@ void setup() {
   Timer1.attachInterrupt(display, TIMER_PERIOD_IN_MS*1000);
 }
 
-void display() {
-
-  // LED Matrix multiplexing
-  static uint8_t state = 0;
-
-  if (state==0) {
-    digitalWrite(LED_X[7], ROW_DISABLE);
-  } else {
-    digitalWrite(LED_X[state-1], ROW_DISABLE);
-  }
-
-  digitalWrite(LED_Y1, !matrix[0][state]);
-  digitalWrite(LED_Y2, !matrix[1][state]);
-  digitalWrite(LED_Y3, !matrix[2][state]);
-  digitalWrite(LED_Y4, !matrix[3][state]);
-  digitalWrite(LED_Y5, !matrix[4][state]);
-  digitalWrite(LED_Y6, !matrix[5][state]);
-  digitalWrite(LED_Y7, !matrix[6][state]);
-  digitalWrite(LED_Y8, !matrix[7][state]);
-
-  digitalWrite(LED_X[state], ROW_ENABLE);
-
-  if (state == 7) {
-    state = 0;
-  } else {
-    state += 1;
-  }
-
-  // Debouncing push buttons
-  static uint8_t debounce_timer_1 = 0;
-  static uint8_t debounce_timer_2 = 0;
-
-  uint8_t val;
-
-  if (debounce_timer_1 > 0) {
-    debounce_timer_1--;
-  } else {
-    val = digitalRead(button_1_Pin);
-    if ((button_1_state == BUTTON_INACTIVE) && (val == LOW)){
-        debounce_timer_1 = TIME_50_MS;   // 50ms
-        button_1_state = BUTTON_PRESSED;
-    } else if (button_1_state == BUTTON_PRESSED){ // aka 50MS later ...
-      if (val == LOW){
-        button_1_state = BUTTON_HELD; // now, this counts
-        debounce_timer_1 = TIME_20_MS;  // --> read button every 20ms
-      } else {
-        button_1_state = BUTTON_INACTIVE; // nope, just a glitch
-      }
-    } else if (button_1_state == BUTTON_HELD){
-      if (val == HIGH){
-        debounce_timer_1 = TIME_50_MS;  // 50ms
-        button_1_state = BUTTON_RELEASED;
-      } else {
-        debounce_timer_1 = TIME_20_MS;  // --> read button only every 20ms
-      }
-    } else if (button_1_state == BUTTON_RELEASED){
-      if (val == HIGH){
-        button_1_state = BUTTON_INACTIVE; // yep, it's released
-      } else {
-        button_1_state = BUTTON_HELD; // nope, just a glitch
-      }
-    }
-  }
-
-  if (debounce_timer_2 > 0) {
-    debounce_timer_2--;
-  } else {
-    val = digitalRead(button_2_Pin);
-    if ((button_2_state == BUTTON_INACTIVE) && (val == LOW)){
-        debounce_timer_2 = TIME_50_MS;   // 50ms
-        button_2_state = BUTTON_PRESSED;
-    } else if (button_2_state == BUTTON_PRESSED){ // aka 50MS later ...
-      if (val == LOW){
-        button_2_state = BUTTON_HELD; // now, this counts
-        debounce_timer_2 = TIME_20_MS;  // --> read button every 20ms while on hold
-      } else {
-        button_2_state = BUTTON_INACTIVE; // nope, just a glitch
-      }
-    } else if (button_2_state == BUTTON_HELD){
-      if (val == HIGH){
-        debounce_timer_2 = TIME_50_MS;  // 50ms
-        button_2_state = BUTTON_RELEASED;
-      } else {
-        debounce_timer_2 = TIME_20_MS;  // --> read button only every 20ms while on hold
-      }
-    } else if (button_2_state == BUTTON_RELEASED){
-      if (val == HIGH){
-        button_2_state = BUTTON_INACTIVE; // yep, it's released
-      } else {
-        button_2_state = BUTTON_HELD; // nope, just a glitch
-      }
-    }
-  }
-
-  static uint16_t mode_switch_timer = 0;
-
-  if (button_1_state == BUTTON_HELD
-   && button_2_state == BUTTON_HELD){
-    mode_switch_timer++;
-    if (mode_switch_timer == TIME_3_S){
-      reqModeSwitch = 1;
-    }
-  }
-  else{
-    mode_switch_timer = 0;
-  }
-
-  // Countdown
-  if (countdown > 0) countdown--;
-}
-
 void loop() {
+  //outputShiftString("123abc");
+  //output_fill_matrix_slow();
   static uint8_t outputMode = 0;
 
   if (reqModeSwitch){
@@ -255,6 +148,9 @@ void loop() {
         break;
       case FILL_MATRIX_FAST:
         break;
+      case FILL_MATRIX_SPIRAL:
+        x = -1;
+        break;
       default:
         break;
     }
@@ -263,10 +159,11 @@ void loop() {
   // Call your output mode in this switch
   switch (outputMode){
     case FILL_MATRIX_SLOW:
-      outputShiftString(TEXT);
+      //outputShiftString(TEXT);
       //outputString(TEXT);
       //displayCharacterOffset(LETTERS[0],3,0);
-      //output_fill_matrix_slow();
+      output_fill_matrix_slow();
+      //output_fill_matrix_random();
       break;
     case FILL_MATRIX_FAST:
       output_fill_matrix_fast();
@@ -277,186 +174,16 @@ void loop() {
     case FILL_MATRIX_RANDOM:
       output_fill_matrix_random();
       break;
+    case OUTPUT_TEXT:
+      outputShiftString(TEXT);
+      break;
+    case PONG:
+      pong();
+      break;
+    case SNAKE:
+      snake();
+      break;
     default:
       break;
-  }
-}
-
-// output mode functions
-void output_fill_matrix_slow(){
-  if (countdown == 0){
-    matrix[y][x] = 1;
-    x++;
-    if (x > 7){
-      x = 0;
-      y++;
-      if (y > 7){
-        clear_matrix_immediatly();
-      }
-    }
-    countdown = TIME_200_MS;
-  }
-}
-
-void output_fill_matrix_fast(){
-  if (countdown == 0){
-    matrix[y][x] = 1;
-    x++;
-    if (x > 7){
-      x = 0;
-      y++;
-      if (y > 7){
-        clear_matrix_immediatly();
-      }
-    }
-    countdown = TIME_20_MS;
-  }
-}
-
-void output_fill_matrix_spiral(){
-  static uint8_t round = 0;
-  static uint8_t mode = 1;  // 1 = fill, 0 = clear
-  static uint8_t direction = 0;
-
-  if (countdown == 0){
-    if (mode == 1) {
-      // fill
-      if (x == round && y == round + 1) {
-        direction = 0;
-        round++;
-      } else if (x == 7 - round && y == round) {
-        direction = 1;
-      } else if (x == 7 -round && y == 7 - round) {
-        direction = 2;
-      } else if (x == round && y == 7 - round) {
-        direction = 3;
-      }
-
-    } else {
-      // clear
-      if (x == round && y == round) {
-        direction = 0;
-      } else if (x == 7 - round && y == round) {
-        direction = 1;
-      } else if (x == 7 - round && y == 7 - round) {
-        direction = 2;
-      } else if (x == round - 1 && y == 7 - round) {
-        direction = 3;
-        round--;
-      }
-    }
-
-    switch(direction) {
-      case 0: x++; break;  // to the right
-      case 1: y++; break;  // upwards
-      case 2: x--; break;  // to the left
-      case 3: y--; break;  // downwards
-    }
-
-    matrix[y][x] = mode;
-
-    if (mode == 1 && x == 3 && y == 4) {  // last pixel activ - switch to turn off
-      mode = 0;
-      direction = 0;
-      x--;
-      y--;
-    }
-
-    if (mode == 0 && x == 0 && y == 7) {  // last pixel clear - refill again
-      mode = 1;
-      direction = 0;
-      x = -1;
-      y = 0;
-    }
-    countdown = TIME_20_MS;
-  }
-}
-
-
-unsigned int rng() {
-  static unsigned int r = 0;
-  r += micros(); // seeded with changing number
-  r ^= r << 2; r ^= r >> 7; r ^= r << 7;
-  return (r);
-}
-
-void output_fill_matrix_random() {
-    x = rng() / 8192;
-    y = rng() / 8192;
-    matrix[y][x] = !matrix[y][x];
-}
-
-// add your output mode function here
-
-// Helper functions
-void clear_matrix_immediatly(){
-  for (y = 0; y < 8; y++){
-    for (x = 0; x < 8; x++){
-      matrix[y][x] = 0;
-    }
-  }
-  // reset x and y for further use
-  x = 0;
-  y = 0;
-}
-
-// Shows sing characters of passed string one after the other
-void outputString(char * text){
-  char * t;
-  int offsetASCII = 0;
-  int xOffset=0;
-  int yOffset=0;
-  
-  for (t = text; *t != '\0'; t++){
-    displayCharacterOffset(ASCII[(int)*t],xOffset,yOffset);
-    delay(500);
-  }
-}
-
-
-//Shifts string through matrix
-void outputShiftString(char * text){
-  char * t;
-  int xOffset=0;
-  int yOffset=0;
-  bool fistrun = true;
-
-  /* iterate over text characters
-   * loop takes car of two characters a the same time
-  */
-  for (t = text; *t != '\0'; t++){
-    
-    for (xOffset = -1; xOffset >= -7; xOffset--){
-      // *********first charcter part***********
-      if (fistrun){
-         xOffset=7;
-         fistrun=false;
-      }
-      displayCharacterOffset(ASCII[(int)*t],xOffset,yOffset);
-
-      // *********second charcter part***********
-      if(xOffset < 0 && *(t+1) != '\0'){
-        displayCharacterOffset(ASCII[(int)*(t+1)],xOffset+7,yOffset);
-      }
-      delay(TEXT_SHIFT_SPEED_MS);
-    }
-  }
-}
-
-void displayCharacter(const byte* image) {
-  for (int i = 0; i < 8; i++) {
-    for (int j = 0; j < 8; j++) {
-      matrix[i][j] = bitRead(image[i],7-j);
-    }
-  }
-}
-
-void displayCharacterOffset(const byte* image, int8_t x, int8_t y) {
-  for (int i = 0; i < 8; i++) {
-    for (int j = 0; j < 8; j++) {
-      if(((j+x) >= 0 && (j+x) < 8) && ((i+y) >= 0 && (i+y) < 8)){
-        matrix[i+y][j+x] = bitRead(image[i],7-j);
-      }
-    }
   }
 }
