@@ -282,13 +282,17 @@ unsigned int rng() {
 
 void output_fill_matrix_random() {
     static uint8_t i = 0;
-    x = rng() / 256;
+    if(countdown == 0){
+      x = rng() / 256;
 
-    matrix[i] = x;
-    i++;
-    if (i >7){
-      i=0;
+      matrix[i] = x;
+      i++;
+      if (i >7){
+        i=0;
+      }
+      countdown = TIME_20_MS;
     }
+    
 }
 
 // Shows sing characters of passed string one after the other
