@@ -1,4 +1,8 @@
-#include "TimerOne.h" 
+#include "src/TimerOne/TimerOne.h"
+#include "characters.h"
+
+#define TEXT "Macher Daach 2018"
+#define TEXT_SHIFT_SPEED_MS 80
 
 #define ROW_ENABLE HIGH
 #define ROW_DISABLE LOW
@@ -24,6 +28,9 @@ const uint8_t LED_Y3 = 19;    // PC5    Pin  7
 const uint8_t LED_Y2 = 12;    // PB4    Pin  2
 const uint8_t LED_Y1 = 13;    // PB5    Pin  5
 
+const uint8_t LED_X[8] = {LED_X1, LED_X2, LED_X3, LED_X4, LED_X5, LED_X6, LED_X7, LED_X8};
+const uint8_t LED_Y[8] = {LED_Y1, LED_Y2, LED_Y3, LED_Y4, LED_Y5, LED_Y6, LED_Y7, LED_Y8};
+
 const int button_1_Pin = 10;  // PB2        push button SW1
 const int button_2_Pin = 11;  // PB3 (MOSI) push button SW2
 
@@ -37,29 +44,31 @@ typedef enum{
 volatile button_state button_1_state = BUTTON_INACTIVE;
 volatile button_state button_2_state = BUTTON_INACTIVE;
 
-uint8_t matrix[8][8] {
-  0,0,0,0,0,0,0,0,
-  0,0,0,0,0,0,0,0,
-  0,0,0,0,0,0,0,0,
-  0,0,0,0,0,0,0,0,
-  0,0,0,0,0,0,0,0,
-  0,0,0,0,0,0,0,0,
-  0,0,0,0,0,0,0,0,
-  0,0,0,0,0,0,0,0,
+uint8_t matrix[8] {
+  B00000000,
+  B00000000,
+  B00000000,
+  B00000000,
+  B00000000,
+  B00000000,
+  B00000000,
+  B00000000
 };
 
 // Add here a define for your output mode and increase OUTPUT_MODE_MAX accordingly
-#define FILL_MATRIX_SLOW        0
-#define FILL_MATRIX_FAST        1
-#define FILL_MATRIX_SPIRAL      2
-#define FILL_MATRIX_RANDOM      3
-#define OUTPUT_MODE_MAX         4
+#define OUTPUT_TEXT             0
+#define FILL_MATRIX_SPIRAL      1
+#define FILL_MATRIX_RANDOM      2
+#define PONG                    3
+#define SNAKE                   4
+
+#define OUTPUT_MODE_MAX         5
 
 volatile uint8_t reqModeSwitch = 0;
 volatile uint16_t countdown = 0;
 
-int8_t x = 0;
-int8_t y = 0;
+uint8_t x = 0;
+uint8_t y = 0;
 
 #define TIMER_PERIOD_IN_MS   2
 
@@ -67,6 +76,7 @@ int8_t y = 0;
 #define TIME_200_MS           (200/TIMER_PERIOD_IN_MS)
 #define TIME_50_MS            (50/TIMER_PERIOD_IN_MS)
 #define TIME_20_MS            (20/TIMER_PERIOD_IN_MS)
+#define TIME_10_MS            (10/TIMER_PERIOD_IN_MS)
 
 void setup() {
   pinMode(LED_X1, OUTPUT);
@@ -113,157 +123,9 @@ void setup() {
   Timer1.attachInterrupt(display, TIMER_PERIOD_IN_MS*1000);
 }
 
-void display() {
-
-  // LED Matrix multiplexing
-  static uint8_t state = 0;
-
-  digitalWrite(LED_X1, ROW_DISABLE);
-  digitalWrite(LED_X2, ROW_DISABLE);
-  digitalWrite(LED_X3, ROW_DISABLE);
-  digitalWrite(LED_X4, ROW_DISABLE);
-  digitalWrite(LED_X5, ROW_DISABLE);
-  digitalWrite(LED_X6, ROW_DISABLE);
-  digitalWrite(LED_X7, ROW_DISABLE);
-  digitalWrite(LED_X8, ROW_DISABLE);
-
-  if (matrix[0][state] != 0)
-    digitalWrite(LED_Y1, COLUMN_ON);
-  else
-    digitalWrite(LED_Y1, COLUMN_OFF);
-    
-  if (matrix[1][state] != 0)
-    digitalWrite(LED_Y2, COLUMN_ON);
-  else
-    digitalWrite(LED_Y2, COLUMN_OFF);
-  
-  if (matrix[2][state] != 0)
-    digitalWrite(LED_Y3, COLUMN_ON);
-  else
-    digitalWrite(LED_Y3, COLUMN_OFF);
-  
-  if (matrix[3][state] != 0)
-    digitalWrite(LED_Y4, COLUMN_ON);
-  else
-    digitalWrite(LED_Y4, COLUMN_OFF);
-  
-  if (matrix[4][state] != 0)
-    digitalWrite(LED_Y5, COLUMN_ON);
-  else
-    digitalWrite(LED_Y5, COLUMN_OFF);
-  
-  if (matrix[5][state] != 0)
-    digitalWrite(LED_Y6, COLUMN_ON);
-  else
-    digitalWrite(LED_Y6, COLUMN_OFF);
-  
-  if (matrix[6][state] != 0)
-    digitalWrite(LED_Y7, COLUMN_ON);
-  else
-    digitalWrite(LED_Y7, COLUMN_OFF);
-  
-  if (matrix[7][state] != 0)
-    digitalWrite(LED_Y8, COLUMN_ON);
-  else
-    digitalWrite(LED_Y8, COLUMN_OFF);
-
-  switch (state){
-    case 0:
-      digitalWrite(LED_X1, ROW_ENABLE);
-      state = 1;
-      break;
-    case 1:
-      digitalWrite(LED_X2, ROW_ENABLE);
-      state = 2;
-      break;
-    case 2:
-      digitalWrite(LED_X3, ROW_ENABLE);
-      state = 3;
-      break;
-    case 3:
-      digitalWrite(LED_X4, ROW_ENABLE);
-      state = 4;
-      break;
-    case 4:
-      digitalWrite(LED_X5, ROW_ENABLE);
-      state = 5;
-      break;
-    case 5:
-      digitalWrite(LED_X6, ROW_ENABLE);
-      state = 6;
-      break;
-    case 6:
-      digitalWrite(LED_X7, ROW_ENABLE);
-      state = 7;
-      break;
-    case 7 :
-      digitalWrite(LED_X8, ROW_ENABLE);
-      state = 0;
-      break;
-  }
-
-  // Debouncing push buttons
-  static uint8_t debounce_timer_1 = 0;
-  static uint8_t debounce_timer_2 = 0;
-
-  uint8_t val;
-
-  if (debounce_timer_1 > 0) debounce_timer_1--;
-  if (debounce_timer_1 == 0){
-    val = digitalRead(button_1_Pin);
-    if (button_1_state == BUTTON_INACTIVE && val == LOW){
-      debounce_timer_1 = TIME_50_MS;  // 50ms
-      button_1_state = BUTTON_PRESSED;
-    }
-    else if (button_1_state == BUTTON_PRESSED && val == LOW){
-      button_1_state = BUTTON_HELD;
-    }
-    else if (button_1_state == BUTTON_HELD && val == HIGH){
-      debounce_timer_1 = TIME_50_MS;  // 50ms
-      button_1_state = BUTTON_RELEASED;
-    }
-    else if (button_1_state == BUTTON_RELEASED && val == HIGH){
-      button_1_state = BUTTON_INACTIVE;
-    }
-  }
-
-  if (debounce_timer_2 > 0) debounce_timer_2--;
-  if (debounce_timer_2 == 0){
-    val = digitalRead(button_2_Pin);
-    if (button_2_state == BUTTON_INACTIVE && val == LOW){
-      debounce_timer_2 = TIME_50_MS;  // 50ms
-      button_2_state = BUTTON_PRESSED;
-    }
-    else if (button_2_state == BUTTON_PRESSED && val == LOW){
-      button_2_state = BUTTON_HELD;
-    }
-    else if (button_2_state == BUTTON_HELD && val == HIGH){
-      debounce_timer_2 = TIME_50_MS;  // 50ms
-      button_2_state = BUTTON_RELEASED;
-    }
-    else if (button_2_state == BUTTON_RELEASED && val == HIGH){
-      button_2_state = BUTTON_INACTIVE;
-    }
-  }
-
-  static uint16_t mode_switch_timer = 0;
-
-  if (button_1_state == BUTTON_HELD
-   && button_2_state == BUTTON_HELD){
-    mode_switch_timer++;
-    if (mode_switch_timer == TIME_3_S){
-      reqModeSwitch = 1;
-    }
-  }
-  else{
-    mode_switch_timer = 0;
-  }
-
-  // Countdown
-  if (countdown > 0) countdown--;
-}
-
 void loop() {
+  //outputShiftString("123abc");
+  //output_fill_matrix_slow();
   static uint8_t outputMode = 0;
 
   if (reqModeSwitch){
@@ -279,9 +141,9 @@ void loop() {
 
     // Do initializations for a new output mode here if necessary
     switch (outputMode){
-      case FILL_MATRIX_SLOW:
-        break;
-      case FILL_MATRIX_FAST:
+      case FILL_MATRIX_SPIRAL:
+        x = -1;
+        output_fill_matrix_spiral(true);
         break;
       default:
         break;
@@ -290,136 +152,22 @@ void loop() {
 
   // Call your output mode in this switch
   switch (outputMode){
-    case FILL_MATRIX_SLOW:
-      output_fill_matrix_slow();
-      break;
-    case FILL_MATRIX_FAST:
-      output_fill_matrix_fast();
+    case OUTPUT_TEXT:
+      outputShiftString(TEXT);
       break;
     case FILL_MATRIX_SPIRAL:
-      output_fill_matrix_spiral();
+      output_fill_matrix_spiral(false);
       break;
     case FILL_MATRIX_RANDOM:
       output_fill_matrix_random();
       break;
+    case PONG:
+      pong();
+      break;
+    case SNAKE:
+      snake();
+      break;
     default:
       break;
   }
-}
-
-// output mode functions
-void output_fill_matrix_slow(){
-  if (countdown == 0){
-    matrix[y][x] = 1;
-    x++;
-    if (x > 7){
-      x = 0;
-      y++;
-      if (y > 7){
-        clear_matrix_immediatly();
-      }
-    }
-    countdown = TIME_200_MS;
-  }
-}
-
-void output_fill_matrix_fast(){
-  if (countdown == 0){
-    matrix[y][x] = 1;
-    x++;
-    if (x > 7){
-      x = 0;
-      y++;
-      if (y > 7){
-        clear_matrix_immediatly();
-      }
-    }
-    countdown = TIME_20_MS;
-  }
-}
-
-void output_fill_matrix_spiral(){
-  static uint8_t round = 0;
-  static uint8_t mode = 1;  // 1 = fill, 0 = clear
-  static uint8_t direction = 0;
-
-  if (countdown == 0){
-    if (mode == 1) {
-      // fill
-      if (x == round && y == round + 1) {
-        direction = 0;
-        round++;
-      } else if (x == 7 - round && y == round) {
-        direction = 1;
-      } else if (x == 7 -round && y == 7 - round) {
-        direction = 2;
-      } else if (x == round && y == 7 - round) {
-        direction = 3;
-      }
-
-    } else {
-      // clear
-      if (x == round && y == round) {
-        direction = 0;
-      } else if (x == 7 - round && y == round) {
-        direction = 1;
-      } else if (x == 7 - round && y == 7 - round) {
-        direction = 2;
-      } else if (x == round - 1 && y == 7 - round) {
-        direction = 3;
-        round--;
-      }
-    }
-
-    switch(direction) {
-      case 0: x++; break;  // to the right
-      case 1: y++; break;  // upwards
-      case 2: x--; break;  // to the left
-      case 3: y--; break;  // downwards
-    }
-
-    matrix[y][x] = mode;
-
-    if (mode == 1 && x == 3 && y == 4) {  // last pixel activ - switch to turn off
-      mode = 0;
-      direction = 0;
-      x--;
-      y--;
-    }
-
-    if (mode == 0 && x == 0 && y == 7) {  // last pixel clear - refill again
-      mode = 1;
-      direction = 0;
-      x = -1;
-      y = 0;
-    }
-    countdown = TIME_20_MS;
-  }
-}
-
-unsigned int rng() {
-  static unsigned int r = 0;
-  r += micros(); // seeded with changing number
-  r ^= r << 2; r ^= r >> 7; r ^= r << 7;
-  return (r);
-}
-
-void output_fill_matrix_random() {
-    x = rng() / 8192;
-    y = rng() / 8192;
-    matrix[y][x] = !matrix[y][x];
-}
-
-// add your output mode function here
-
-// Helper functions
-void clear_matrix_immediatly(){
-  for (y = 0; y < 8; y++){
-    for (x = 0; x < 8; x++){
-      matrix[y][x] = 0;
-    }
-  }
-  // reset x and y for further use
-  x = 0;
-  y = 0;
 }
