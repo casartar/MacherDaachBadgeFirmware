@@ -1,9 +1,37 @@
 #include "src/TimerOne/TimerOne.h"
 #include "characters.h"
 
-#define TEXT "Macher Daach 2018"
+/* --------- --------- --------- ---------
+ *  configure your badge in this section:
+ */
+
+// the text to display in OutputShiftString-Mode:
+#define TEXT "Macherdaach 2018"
 #define TEXT_SHIFT_SPEED_MS 80
 
+// Output modes and their order
+#define NUM_OF_MODES  5
+
+void (*output_functions[NUM_OF_MODES])() {
+  outputShiftString,
+  output_fill_matrix_spiral,
+  output_fill_matrix_random,
+  pong,
+  snake
+};
+
+// Initializers to output modes (if necessary)
+void (*initializer_functions[NUM_OF_MODES])() {
+  nop,
+  output_init_matrix_spiral,
+  nop,
+  nop,
+  nop
+};
+
+/* --------- --------- --------- ---------
+ * general Setup of the badge hardware
+ */
 #define ROW_ENABLE HIGH
 #define ROW_DISABLE LOW
 #define COLUMN_ON LOW
@@ -55,14 +83,6 @@ uint8_t matrix[8] {
   B00000000
 };
 
-// Add here a define for your output mode and increase OUTPUT_MODE_MAX accordingly
-#define OUTPUT_TEXT             0
-#define FILL_MATRIX_SPIRAL      1
-#define FILL_MATRIX_RANDOM      2
-#define PONG                    3
-#define SNAKE                   4
-
-#define OUTPUT_MODE_MAX         5
 
 volatile uint8_t reqModeSwitch = 0;
 volatile uint16_t countdown = 0;
@@ -137,37 +157,17 @@ void loop() {
 
     // switch output mode
     outputMode++;
-    if (outputMode == OUTPUT_MODE_MAX) outputMode = 0;
+    if (outputMode == NUM_OF_MODES) {
+      outputMode = 0;
+    }
 
     // Do initializations for a new output mode here if necessary
-    switch (outputMode){
-      case FILL_MATRIX_SPIRAL:
-        x = -1;
-        output_fill_matrix_spiral(true);
-        break;
-      default:
-        break;
+    initializer_functions[outputMode]();
     }
-  }
 
   // Call your output mode in this switch
-  switch (outputMode){
-    case OUTPUT_TEXT:
-      outputShiftString(TEXT);
-      break;
-    case FILL_MATRIX_SPIRAL:
-      output_fill_matrix_spiral(false);
-      break;
-    case FILL_MATRIX_RANDOM:
-      output_fill_matrix_random();
-      break;
-    case PONG:
-      pong();
-      break;
-    case SNAKE:
-      snake();
-      break;
-    default:
-      break;
-  }
+  output_functions[outputMode]();
 }
+
+// Helper function for output_mode array
+void nop() { }

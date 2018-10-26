@@ -1,3 +1,11 @@
+void output_init_matrix_spiral() {
+  output_fill_matrix_spiral(true);
+}
+
+void output_fill_matrix_spiral() {
+  output_fill_matrix_spiral(false);
+}
+
 void output_fill_matrix_spiral(bool init){
   static uint8_t round = 0;
   static uint8_t mode = 1;  // 1 = fill, 0 = clear
@@ -5,7 +13,10 @@ void output_fill_matrix_spiral(bool init){
 
   if(init){
     round = 0;
-    direction = 0;  
+    mode = 1;
+    direction = 0;
+    x = -1;
+    y = 0;
   }
   
   if (countdown == 0){
