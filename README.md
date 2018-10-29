@@ -11,23 +11,19 @@ Reset - 3  4 - MOSI
 SCK   - 5  6 - GND
 ```
 
-**!! Achtung !!**
-Der Pinheader entspricht im Moment nicht dem Standard.
-Reset und SCK sind vertauscht. Die Tabelle entspricht der aktuellen Hardware. Die beiden Pins werden jedoch in der nächsten Revision getauscht.
-
 ### Verkabelung
 
 Badge    | Farbe    | Arduino
 -------- | -------- | --------
 ISP 1    | Schwarz  | 12
 ISP 2    | Weiß     | 5V
-ISP 3    | Grau     | 10
+ISP 3    | Grau     | 13
 ISP 4    | Lila     | 11
-ISP 5    | Blau     | 13
+ISP 5    | Blau     | 10
 ISP 6    | Grün     | GND
 
 **!! Achtung !!**
-Vor dem Anschließen der Spannungsversorgung des Arduinos, muss die Batterie entfernt werden.
+Vor dem Anschließen der Spannungsversorgung des Arduinos, muss der Jumper von BAT auf EXT gesetzt werden oder die Knopfzelle entnommen werden.
 
 ### Bilder
 ![](Pictures/ISP1.JPG)
