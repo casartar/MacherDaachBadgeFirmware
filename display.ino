@@ -90,7 +90,7 @@ void display() {
   if (button_1_state == BUTTON_HELD
    && button_2_state == BUTTON_HELD){
     mode_switch_timer++;
-    if (mode_switch_timer == TIME_3_S){
+    if (mode_switch_timer == SWITCH_TIME * TIME_1_S) {
       reqModeSwitch = 1;
     }
   }
@@ -120,6 +120,32 @@ void matrixSetPixel(byte x, byte y, bool value){
 
 bool matrixGetPixel(byte x, byte y){
   return bitRead(matrix[y], x);
+}
+
+void matrixShiftUp() {
+  for (uint8_t y=0; y<8; y++) {
+    matrix[y]<<=1;
+  }
+}
+
+void matrixShiftDown() {
+  for (uint8_t y=0; y<8; y++) {
+    matrix[y]>>=1;
+  }
+}
+
+void matrixShiftLeft() {
+  for (uint8_t y=0; y<7; y++) {
+    matrix[y]=matrix[y+1];
+  }
+  matrix[7]= B00000000;
+}
+
+void matrixShiftRight() {
+  for (uint8_t y=0; y<7; y++) {
+    matrix[y+1]=matrix[y];
+  }
+  matrix[0]= B00000000;
 }
 
 void setRow(uint8_t values){

@@ -6,33 +6,114 @@ struct segment {
     segment *next;
   };
 
+#define TOP    0
+#define RIGHT  1
+#define BOTTOM 2
+#define LEFT   3
+
+
+void snake_intro() {
+  char demosnake[] = "ooooooololoroorooroololooox";
+  int8_t snake_head = 6*8+7;
+  int8_t snake_tail = 6*8+7;
+  uint8_t snake_dir = LEFT;
+  uint8_t snake_length = 19;
+  uint8_t snake_sim = 0;
+
+  // pseudo mouse
+  matrixSetPixel(5, 1, true);
+
+  // Snake-Animation
+  while (demosnake[snake_sim] != 'x') {
+
+    // display snake
+    matrixSetPixel (snake_head%8, snake_head/8, true); // show next head position
+    if (snake_sim >= snake_length) {
+      matrixSetPixel (snake_tail%8, snake_tail/8, false); // remove at tail position
+    }
+
+    // button simulation
+    if (demosnake[snake_sim] == 'r') { // turn to the right
+      if (snake_dir == TOP) { snake_dir = LEFT; }
+      else { snake_dir--; }
+    } else if (demosnake[snake_sim] == 'l') { // turn to the left
+      if (snake_dir == LEFT) { snake_dir = TOP; }
+      else { snake_dir++; }
+    }
+
+    // move the head
+    switch (snake_dir) {
+      case TOP: snake_head -= 8; if (snake_head < 0) {snake_head += 64;} break;
+      case RIGHT: snake_head += 1; if (snake_head % 8 == 0) {snake_head -= 8;} break;
+      case BOTTOM: snake_head += 8; if (snake_head > 63) {snake_head -= 64;} break;
+      case LEFT: snake_head -= 1; if ((snake_head % 8 == 7) || (snake_head == -1)) {snake_head += 8;} break;
+    }
+
+    // move the tail
+    if (snake_sim >= snake_length) {
+      snake_tail -= 1; // tail moves only to the left, because it's just an animation, darling
+    }
+
+    // animation speed
+    snake_sim += 1;
+    delay(100);
+  }
+
+  // Shift Snake banner across the screen
+  uint8_t banner[8][13] = {
+    {0,0,0,0,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,1,0,0,0,0,0,0,0},
+    {0,0,0,0,0,1,0,0,0,0,0,0,0},
+    {0,0,1,1,0,1,0,1,0,0,1,1,0},
+    {0,1,0,1,0,1,1,0,0,1,1,1,1},
+    {0,1,0,1,0,1,0,1,0,1,0,0,0},
+    {0,0,1,1,0,1,0,1,0,1,1,1,0},
+    {0,0,0,0,0,0,0,0,0,0,0,0,0}
+  };
+  for (uint8_t i=0; i<13; i++) {
+    matrixShiftLeft();
+    for (uint8_t j=0; j<8; j++) {
+      matrixSetPixel(7, 7-j, banner[j][i]);
+    }
+    delay(150);
+  }
+  matrixShiftLeft();
+
+  // cleanup after the intro
+  delay(400);
+  clear_matrix_immediatly_without_reset();
+}
+
+
 void snake(){
   static uint8_t speed = 100;
   static bool debounced = true;
-  #define TOP    0
-  #define RIGHT  1
-  #define BOTTOM 2
-  #define LEFT   3
   static uint8_t snake_dir = RIGHT;
   static uint8_t snake_len = 1;
-  static uint8_t snake_age = 0;
+  static uint16_t snake_age = 0;
   static uint8_t mouse_pos = 10;
+  static uint16_t egg_timer = 0;
   static segment *tail = new segment {.pos = 32, .next = NULL};
 
   // check buttons
   if (debounced) {
-    if (button_2_state == BUTTON_HELD) { // turn to the left
+    if (button_1_state == BUTTON_HELD) { // turn to the left
       if (snake_dir == TOP) { snake_dir = LEFT; }
       else { snake_dir--; } 
       debounced = false;
     }
-    if (button_1_state == BUTTON_HELD) {
+    if (button_2_state == BUTTON_HELD) { // turn to the right
       if (snake_dir == LEFT) { snake_dir = TOP; }
       else { snake_dir++; } 
       debounced = false;
     }
-  } else if ((button_2_state == BUTTON_INACTIVE) && (button_1_state == BUTTON_INACTIVE)) {
-    debounced = true;
+  } else if ((button_1_state == BUTTON_INACTIVE) && (button_2_state == BUTTON_INACTIVE)) {
+    debounced = true; egg_timer = 0;
+  } else if ((button_1_state == BUTTON_HELD) && (button_2_state == BUTTON_HELD)) {
+    egg_timer = 1;
+  } else if ((egg_timer > 0) && ((button_1_state == BUTTON_HELD) xor (button_2_state == BUTTON_HELD))) {
+    egg_timer += 1;
+    if (egg_timer == 15000) { egg_timer = 0; clear_matrix_immediatly_without_reset(); snake_intro(); }
   }
   
   if (countdown == 0) {  // showtime!
@@ -42,9 +123,9 @@ void snake(){
     // move the snake
     segment *snake = new segment {.pos = tail->pos, .next = tail};
     switch (snake_dir) {
-      case TOP: snake->pos -= 8; if (snake->pos < 0) {snake->pos += 64;} break;
+      case TOP: snake->pos += 8; if (snake->pos > 63) {snake->pos -= 64;} break;
       case RIGHT: snake->pos += 1; if (snake->pos % 8 == 0) {snake->pos -= 8;} break;
-      case BOTTOM: snake->pos += 8; if (snake->pos > 63) {snake->pos -= 64;} break;
+      case BOTTOM: snake->pos -= 8; if (snake->pos < 0) {snake->pos += 64;} break;
       case LEFT: snake->pos -= 1; if ((snake->pos % 8 == 7) || (snake->pos == -1)) {snake->pos += 8;} break;
     }
   
@@ -57,7 +138,7 @@ void snake(){
         snake_age = 0;
       }
       // create new mouse at some later time
-      mouse_pos = 64 + 3; // wait for three turns
+      mouse_pos = 64 + 4; // wait for three turns
     } else {
       // snake_len stays the same. As we added a new head we must remove the last tail segment
       segment *p = snake;

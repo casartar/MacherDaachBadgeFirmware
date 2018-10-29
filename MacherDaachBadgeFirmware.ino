@@ -29,6 +29,9 @@ void (*initializer_functions[NUM_OF_MODES])() {
   nop
 };
 
+// switch modes after pressing both buttons for this many seconds
+#define SWITCH_TIME 2
+
 /* --------- --------- --------- ---------
  * general Setup of the badge hardware
  */
@@ -92,7 +95,7 @@ uint8_t y = 0;
 
 #define TIMER_PERIOD_IN_MS   2
 
-#define TIME_3_S              (3000/TIMER_PERIOD_IN_MS)
+#define TIME_1_S              (1000/TIMER_PERIOD_IN_MS)
 #define TIME_200_MS           (200/TIMER_PERIOD_IN_MS)
 #define TIME_50_MS            (50/TIMER_PERIOD_IN_MS)
 #define TIME_20_MS            (20/TIMER_PERIOD_IN_MS)
@@ -141,6 +144,9 @@ void setup() {
   Timer1.initialize();
   // The display function gets called every 2 ms
   Timer1.attachInterrupt(display, TIMER_PERIOD_IN_MS*1000);
+
+  // call initializer of first mode
+  initializer_functions[0]();
 }
 
 void loop() {
