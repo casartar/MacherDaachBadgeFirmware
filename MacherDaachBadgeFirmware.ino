@@ -26,7 +26,7 @@ void (*initializer_functions[NUM_OF_MODES])() {
   output_init_matrix_spiral,
   nop,
   nop,
-  nop
+  snake_intro
 };
 
 // switch modes after pressing both buttons for this many seconds
