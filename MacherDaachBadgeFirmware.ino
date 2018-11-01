@@ -1,9 +1,40 @@
 #include "src/TimerOne/TimerOne.h"
 #include "characters.h"
 
-#define TEXT "Macher Daach 2018"
+/* --------- --------- --------- ---------
+ *  configure your badge in this section:
+ */
+
+// the text to display in OutputShiftString-Mode:
+#define TEXT "Macherdaach 2018"
 #define TEXT_SHIFT_SPEED_MS 80
 
+// Output modes and their order
+#define NUM_OF_MODES  5
+
+void (*output_functions[NUM_OF_MODES])() {
+  outputShiftString,
+  output_fill_matrix_spiral,
+  output_fill_matrix_random,
+  pong,
+  snake
+};
+
+// Initializers to output modes (if necessary)
+void (*initializer_functions[NUM_OF_MODES])() {
+  nop,
+  output_init_matrix_spiral,
+  nop,
+  nop,
+  snake_intro
+};
+
+// switch modes after pressing both buttons for this many seconds
+#define SWITCH_TIME 2
+
+/* --------- --------- --------- ---------
+ * general Setup of the badge hardware
+ */
 #define ROW_ENABLE HIGH
 #define ROW_DISABLE LOW
 #define COLUMN_ON LOW
@@ -55,14 +86,6 @@ uint8_t matrix[8] {
   B00000000
 };
 
-// Add here a define for your output mode and increase OUTPUT_MODE_MAX accordingly
-#define OUTPUT_TEXT             0
-#define FILL_MATRIX_SPIRAL      1
-#define FILL_MATRIX_RANDOM      2
-#define PONG                    3
-#define SNAKE                   4
-
-#define OUTPUT_MODE_MAX         5
 
 volatile uint8_t reqModeSwitch = 0;
 volatile uint16_t countdown = 0;
@@ -72,7 +95,7 @@ uint8_t y = 0;
 
 #define TIMER_PERIOD_IN_MS   2
 
-#define TIME_3_S              (3000/TIMER_PERIOD_IN_MS)
+#define TIME_1_S              (1000/TIMER_PERIOD_IN_MS)
 #define TIME_200_MS           (200/TIMER_PERIOD_IN_MS)
 #define TIME_50_MS            (50/TIMER_PERIOD_IN_MS)
 #define TIME_20_MS            (20/TIMER_PERIOD_IN_MS)
@@ -121,6 +144,9 @@ void setup() {
   Timer1.initialize();
   // The display function gets called every 2 ms
   Timer1.attachInterrupt(display, TIMER_PERIOD_IN_MS*1000);
+
+  // call initializer of first mode
+  initializer_functions[0]();
 }
 
 void loop() {
@@ -137,37 +163,17 @@ void loop() {
 
     // switch output mode
     outputMode++;
-    if (outputMode == OUTPUT_MODE_MAX) outputMode = 0;
+    if (outputMode == NUM_OF_MODES) {
+      outputMode = 0;
+    }
 
     // Do initializations for a new output mode here if necessary
-    switch (outputMode){
-      case FILL_MATRIX_SPIRAL:
-        x = -1;
-        output_fill_matrix_spiral(true);
-        break;
-      default:
-        break;
+    initializer_functions[outputMode]();
     }
-  }
 
   // Call your output mode in this switch
-  switch (outputMode){
-    case OUTPUT_TEXT:
-      outputShiftString(TEXT);
-      break;
-    case FILL_MATRIX_SPIRAL:
-      output_fill_matrix_spiral(false);
-      break;
-    case FILL_MATRIX_RANDOM:
-      output_fill_matrix_random();
-      break;
-    case PONG:
-      pong();
-      break;
-    case SNAKE:
-      snake();
-      break;
-    default:
-      break;
-  }
+  output_functions[outputMode]();
 }
+
+// Helper function for output_mode array
+void nop() { }

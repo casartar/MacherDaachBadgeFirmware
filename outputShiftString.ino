@@ -1,3 +1,9 @@
+// helper function for mode-array
+void outputShiftString() {
+  char text[] = TEXT;
+  outputShiftString(text);
+}
+
 //Shifts string through matrix
 void outputShiftString(char * text){
   char *t;
