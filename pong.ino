@@ -1,3 +1,51 @@
+extern PROGMEM const byte PONGO[][8] = {
+{ // left half
+  B00000000,
+  B01100000,
+  B01010000,
+  B01100100,
+  B01001010,
+  B01000100,
+  B00000000,
+  B00000000
+},{ // right half
+  B00000000,
+  B00000000,
+  B00000000,
+  B11000110,
+  B10101010,
+  B10100110,
+  B00000010,
+  B00000100
+}};
+
+
+void pong_intro() {
+
+  for (int i = 0; i<6; i++) {
+    for (int xOffset = 0; xOffset > -7; xOffset --) { 
+      // draw char
+      displayCharacterOffset(PONGO[0],xOffset,0);
+      
+      // *********second part***********
+      if(xOffset <= -1) {
+        displayCharacterOffset(PONGO[1],xOffset+7,0);
+      }
+      delay(150 - i*10);
+    }
+    for (int xOffset = -7; xOffset < 0; xOffset ++) { 
+      // draw char
+      displayCharacterOffset(PONGO[0],xOffset,0);
+      
+      // *********second part***********
+      if(xOffset <= -1) {
+        displayCharacterOffset(PONGO[1],xOffset+7,0);
+      }
+      delay(150 - i*10 - 5);
+    }
+  }
+}
+
 
 void pong(){
   static uint8_t speed = 100;
