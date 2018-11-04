@@ -134,18 +134,18 @@ void matrixShiftDown() {
   }
 }
 
-void matrixShiftLeft() {
+void matrixShiftLeft(uint8_t newColumn) {
   for (uint8_t y=0; y<7; y++) {
     matrix[y]=matrix[y+1];
   }
-  matrix[7]= B00000000;
+  matrix[7]= newColumn;
 }
 
-void matrixShiftRight() {
+void matrixShiftRight(uint8_t newColumn) {
   for (uint8_t y=0; y<7; y++) {
     matrix[y+1]=matrix[y];
   }
-  matrix[0]= B00000000;
+  matrix[0]= newColumn;
 }
 
 void setRow(uint8_t values){
@@ -161,12 +161,12 @@ void setRow(uint8_t values){
 }
 
 void displayCharacter(const byte* image) {
-  for (int i = 0; i < 8; i++) {
-    matrix[8-i] = image[i];
-  }
+  // this is just bad and needs fixing!
+  displayCharacterOffset(image, 0, 0);
 }
 
 void displayCharacterOffset(const byte* image, int8_t x, int8_t y) {
+
   for (int i = 0; i < 8; i++) {
     for (int j = 0; j < 8; j++) {
       if(((j+x) >= 0 && (j+x) < 8) && ((i+y) >= 0 && (i+y) < 8)){
