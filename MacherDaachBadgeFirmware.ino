@@ -25,7 +25,7 @@ void (*initializer_functions[NUM_OF_MODES])() {
   nop,
   output_init_matrix_spiral,
   nop,
-  nop,
+  pong_intro,
   snake_intro
 };
 

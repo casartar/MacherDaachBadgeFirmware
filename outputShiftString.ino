@@ -30,8 +30,8 @@ void outputShiftString(char * text){
     displayCharacterOffset(ASCII[(int)*t],xOffset,yOffset);
     
     // *********second charcter part***********
-    if(xOffset < -1 && *(t+1) != '\0'){
-      displayCharacterOffset(ASCII[(int)*(t+1)],xOffset+7,yOffset);
+    if (xOffset < 0) {
+      displayCharacterOffset(ASCII[(int)*(t+1)],xOffset+8,yOffset);
     }
     
     countdown = TEXT_SHIFT_SPEED_MS;

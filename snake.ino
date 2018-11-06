@@ -71,13 +71,13 @@ void snake_intro() {
     {0,0,0,0,0,0,0,0,0,0,0,0,0}
   };
   for (uint8_t i=0; i<13; i++) {
-    matrixShiftLeft();
+    matrixShiftLeft(B00000000);
     for (uint8_t j=0; j<8; j++) {
       matrixSetPixel(7, 7-j, banner[j][i]);
     }
     delay(150);
   }
-  matrixShiftLeft();
+  matrixShiftLeft(B00000000);
 
   // cleanup after the intro
   delay(400);
