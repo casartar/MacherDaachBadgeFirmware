@@ -6,7 +6,7 @@
  */
 
 // the text to display in OutputShiftString-Mode:
-#define TEXT "Macherdaach\x11"
+#define TEXT "Macherdaach 2018"
 #define TEXT_SHIFT_SPEED_MS 80
 
 // Output modes and their order
