@@ -1,18 +1,21 @@
 #include "src/TimerOne/TimerOne.h"
 #include "characters.h"
-
+#include <string.h>
 /* --------- --------- --------- ---------
  *  configure your badge in this section:
  */
 
 // the text to display in OutputShiftString-Mode:
-#define TEXT "Macherdaach 2018"
+#define TEXT "MacherDaach 2018"
+#define UART "Uart"
+#define UART_SHIFT_SPEED_MS 40
 #define TEXT_SHIFT_SPEED_MS 80
 
 // Output modes and their order
-#define NUM_OF_MODES  5
+#define NUM_OF_MODES  6
 
 void (*output_functions[NUM_OF_MODES])() {
+  outputShiftUART,
   outputShiftString,
   output_fill_matrix_spiral,
   output_fill_matrix_random,
@@ -22,6 +25,7 @@ void (*output_functions[NUM_OF_MODES])() {
 
 // Initializers to output modes (if necessary)
 void (*initializer_functions[NUM_OF_MODES])() {
+  nop,
   nop,
   output_init_matrix_spiral,
   nop,
@@ -100,6 +104,8 @@ uint8_t y = 0;
 #define TIME_50_MS            (50/TIMER_PERIOD_IN_MS)
 #define TIME_20_MS            (20/TIMER_PERIOD_IN_MS)
 #define TIME_10_MS            (10/TIMER_PERIOD_IN_MS)
+char  inputString[256] = "";         // a String to hold incoming data
+bool stringComplete = false;
 
 void setup() {
   pinMode(LED_X1, OUTPUT);
@@ -140,7 +146,8 @@ void setup() {
 
   pinMode(button_1_Pin, INPUT_PULLUP);
   pinMode(button_2_Pin, INPUT_PULLUP);
-
+  Serial.begin(9600);
+  
   Timer1.initialize();
   // The display function gets called every 2 ms
   Timer1.attachInterrupt(display, TIMER_PERIOD_IN_MS*1000);
@@ -177,3 +184,20 @@ void loop() {
 
 // Helper function for output_mode array
 void nop() { }
+
+void serialEvent() {
+  static uint8_t index = 0;
+  while (Serial.available()) {
+    // get the new byte:
+    char inChar = (char)Serial.read();
+    // add it to the inputString:
+    inputString[index++] = inChar;
+    // if the incoming character is a newline, set a flag so the main loop can
+    // do something about it:
+    if (inChar == '\r' ) {
+      inputString[index-1] = '\0';
+      index = 0; 
+      stringComplete = true;
+    }
+  }
+}
