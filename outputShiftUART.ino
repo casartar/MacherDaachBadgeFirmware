@@ -15,7 +15,7 @@ void outputShiftUART(char * text, bool newstart){
   char *t;
 //  static int i = startposition;
    static int i = 0;
-   static int xOffset = -1;
+   static int xOffset = 7;
   static int yOffset = 0;
   static bool fistrun = false;
 
@@ -55,7 +55,7 @@ void outputShiftUART(char * text, bool newstart){
       fistrun = true;  
     }
     // if charachter shift completed
-    if(xOffset <= -9){
+    if(xOffset <= -8){
       xOffset=-1;
       i++;
     }
