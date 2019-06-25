@@ -6,9 +6,9 @@
  */
 
 // the text to display in OutputShiftString-Mode:
-#define TEXT "MacherDaach 2018"
+#define TEXT "MacherDaach 2019"
 #define UART_SHIFT_SPEED_MS 40
-#define TEXT_SHIFT_SPEED_MS 80
+#define TEXT_SHIFT_SPEED_MS 40
 
 // Output modes and their order
 #define NUM_OF_MODES  6

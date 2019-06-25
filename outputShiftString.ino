@@ -8,7 +8,7 @@ void outputShiftString() {
 void outputShiftString(char * text){
   char *t;
   static int i = 0;
-  static int xOffset = -1;
+  static int xOffset = 0;
   static int yOffset = 0;
   static bool fistrun = true;
 
@@ -31,7 +31,7 @@ void outputShiftString(char * text){
     
     // *********second charcter part***********
     if (xOffset < 0) {
-      displayCharacterOffset(ASCII[(int)*(t+1)],xOffset+7,yOffset);
+      displayCharacterOffset(ASCII[(int)*(t+1)],xOffset+8,yOffset);
     }
     
     countdown = TEXT_SHIFT_SPEED_MS;
@@ -44,7 +44,7 @@ void outputShiftString(char * text){
     }
     // if charachter shift completed
     if(xOffset <= -8){
-      xOffset=-1;
+      xOffset=0;
       i++;
     }
     //set X offset for next cycle
