@@ -7,7 +7,6 @@
 
 // the text to display in OutputShiftString-Mode:
 #define TEXT "MacherDaach 2018"
-#define UART "Uart"
 #define UART_SHIFT_SPEED_MS 40
 #define TEXT_SHIFT_SPEED_MS 80
 
@@ -104,8 +103,10 @@ uint8_t y = 0;
 #define TIME_50_MS            (50/TIMER_PERIOD_IN_MS)
 #define TIME_20_MS            (20/TIMER_PERIOD_IN_MS)
 #define TIME_10_MS            (10/TIMER_PERIOD_IN_MS)
-char  inputString[256] = "";         // a String to hold incoming data
-bool stringComplete = false;
+
+#define UART_INPUT_BUFFER_SIZE 256 
+volatile char uartInputBuffer[UART_INPUT_BUFFER_SIZE];         // a String to hold incoming data
+volatile bool uartReceiveCompleteFlag = false;
 
 void setup() {
   pinMode(LED_X1, OUTPUT);
@@ -190,14 +191,20 @@ void serialEvent() {
   while (Serial.available()) {
     // get the new byte:
     char inChar = (char)Serial.read();
-    // add it to the inputString:
-    inputString[index++] = inChar;
-    // if the incoming character is a newline, set a flag so the main loop can
-    // do something about it:
-    if (inChar == '\r' ) {
-      inputString[index-1] = '\0';
+    if (index == UART_INPUT_BUFFER_SIZE-1) {
+      // Buffer is full - discard characters until CR is received
+      return;
+    }
+    else if (inChar == '\r' ) {
+      // if the incoming character is a CR, set a flag so the main loop can
+      // do something about it:
+      uartInputBuffer[index] = '\0';
       index = 0; 
-      stringComplete = true;
+      uartReceiveCompleteFlag = true;
+    }
+    else {
+      // add character to the uartInputBuffer:
+      uartInputBuffer[index++] = inChar;
     }
   }
 }

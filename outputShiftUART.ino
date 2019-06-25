@@ -1,14 +1,13 @@
+char outputShiftText[UART_INPUT_BUFFER_SIZE];
+
 // helper function for mode-array
-void outputShiftUART() {
-  char text[256];
-    if (stringComplete) {
-     strcpy(text, inputString);
-     Serial.println(text);
-     outputShiftUART(text, true);
-    // clear the string:
-    stringComplete = false;
+void outputShiftUART(){
+  if (uartReceiveCompleteFlag) {
+    strcpy((char*)outputShiftText, (char*)uartInputBuffer);
+    outputShiftUART(outputShiftText, true);
+    uartReceiveCompleteFlag = false;
   }
-  outputShiftUART(text,false);
+  outputShiftUART(outputShiftText,false);
 }
 
 //Shifts string through matrix
