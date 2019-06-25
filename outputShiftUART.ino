@@ -43,7 +43,7 @@ void outputShiftUART(char * text, bool newstart){
     
     // *********second charcter part***********
     if (xOffset < 0) {
-      displayCharacterOffset(ASCII[(int)*(t+1)],xOffset+8,yOffset);
+      displayCharacterOffset(ASCII[(int)*(t+1)],xOffset+7,yOffset);
     }
     
     countdown = UART_SHIFT_SPEED_MS;
