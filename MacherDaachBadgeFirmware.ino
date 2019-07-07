@@ -11,25 +11,29 @@
 #define TEXT_SHIFT_SPEED_MS 40
 
 // Output modes and their order
-#define NUM_OF_MODES  6
+#define NUM_OF_MODES  7
+// Mode to display
+static uint8_t outputMode = 0;
 
 void (*output_functions[NUM_OF_MODES])() {
-  outputShiftUART,
   outputShiftString,
   output_fill_matrix_spiral,
   output_fill_matrix_random,
   pong,
-  snake
+  snake,
+  outputGraphicsUART,
+  outputShiftUART
 };
 
 // Initializers to output modes (if necessary)
 void (*initializer_functions[NUM_OF_MODES])() {
   nop,
-  nop,
   output_init_matrix_spiral,
   nop,
   pong_intro,
-  snake_intro
+  snake_intro,
+  nop,
+  nop
 };
 
 // switch modes after pressing both buttons for this many seconds
@@ -88,7 +92,6 @@ uint8_t matrix[8] {
   B00000000,
   B00000000
 };
-
 
 volatile uint8_t reqModeSwitch = 0;
 volatile uint16_t countdown = 0;
@@ -160,7 +163,6 @@ void setup() {
 void loop() {
   //outputShiftString("123abc");
   //output_fill_matrix_slow();
-  static uint8_t outputMode = 0;
 
   if (reqModeSwitch){
     // both buttons were pressed for 3 seconds
@@ -171,7 +173,8 @@ void loop() {
 
     // switch output mode
     outputMode++;
-    if (outputMode == NUM_OF_MODES) {
+    // Check if max was reached, ignore last two modes (only available over uart)
+    if (outputMode == NUM_OF_MODES-2) {
       outputMode = 0;
     }
 
@@ -196,9 +199,18 @@ void serialEvent() {
       return;
     }
     else if (inChar == '\r' ) {
+      outputMode = 6; // switch output to outputShiftUART
       // if the incoming character is a CR, set a flag so the main loop can
       // do something about it:
       uartInputBuffer[index] = '\0';
+      index = 0; 
+      uartReceiveCompleteFlag = true;
+    }
+    else if (inChar == '\t' ) {
+      outputMode = 5; // switch output to outputShiftUART
+      // if the incoming character is a TAB, set a flag so the main loop can
+      // do something about it:
+      uartInputBuffer[8] = '\0';
       index = 0; 
       uartReceiveCompleteFlag = true;
     }

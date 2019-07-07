@@ -13,9 +13,9 @@ void outputShiftUART(){
 //Shifts string through matrix
 void outputShiftUART(char * text, bool newstart){
   char *t;
-//  static int i = startposition;
-   static int i = 0;
-   static int xOffset = 7;
+  //  static int i = startposition;
+  static int i = 0;
+  static int xOffset = 7;
   static int yOffset = 0;
   static bool fistrun = false;
 
