@@ -210,7 +210,7 @@ void serialEvent() {
       outputMode = 5; // switch output to outputShiftUART
       // if the incoming character is a TAB, set a flag so the main loop can
       // do something about it:
-      uartInputBuffer[8] = '\0';
+      uartInputBuffer[index] = '\0';
       index = 0; 
       uartReceiveCompleteFlag = true;
     }
