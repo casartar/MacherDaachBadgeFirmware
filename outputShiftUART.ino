@@ -1,13 +1,29 @@
-char outputShiftText[UART_INPUT_BUFFER_SIZE];
+char outputShiftCurrent[UART_INPUT_BUFFER_SIZE];
+char outputShiftNext[UART_INPUT_BUFFER_SIZE];
+bool newDataAvailableFlag = false;
+bool outputShiftCompleteFlag = true;
 
 // helper function for mode-array
 void outputShiftUART(){
   if (uartReceiveCompleteFlag) {
-    strcpy((char*)outputShiftText, (char*)uartInputBuffer);
-    outputShiftUART(outputShiftText, true);
+    // Received a whole new String from UART
+    // Copy it to outputShiftNext so UART can receive a new String
+    // outputShiftNext will always be overwritten there is no guarantee
+    // the string will be displayed
+    strcpy((char*)outputShiftNext, (char*)uartInputBuffer);
+    newDataAvailableFlag = true;
     uartReceiveCompleteFlag = false;
   }
-  outputShiftUART(outputShiftText,false);
+  if (outputShiftCompleteFlag && newDataAvailableFlag) {
+    // New String in outputShiftNext available and
+    // outputShiftUART function has shifted out outputShiftCurrent
+    // so outputShiftCurrent is replaced by outputShiftNext
+    // no corruption of the ongoing output shift
+    newDataAvailableFlag = false;
+    outputShiftCompleteFlag = false;
+    strcpy((char*)outputShiftCurrent, (char*)outputShiftNext);
+  }
+  outputShiftUART(outputShiftCurrent,false);
 }
 
 //Shifts string through matrix
@@ -53,6 +69,7 @@ void outputShiftUART(char * text, bool newstart){
       i = 0;     
       //xOffset=0;   
       fistrun = true;  
+      outputShiftCompleteFlag = true;
     }
     // if charachter shift completed
     if(xOffset <= -8){
