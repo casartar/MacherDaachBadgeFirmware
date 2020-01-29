@@ -11,11 +11,12 @@
 #define TEXT_SHIFT_SPEED_MS 40
 
 // Output modes and their order
-#define NUM_OF_MODES  7
+#define NUM_OF_MODES  8
 // Mode to display
 static uint8_t outputMode = 0;
 
 void (*output_functions[NUM_OF_MODES])() {
+  output_quadrat,
   outputShiftString,
   output_fill_matrix_spiral,
   output_fill_matrix_random,
@@ -27,6 +28,7 @@ void (*output_functions[NUM_OF_MODES])() {
 
 // Initializers to output modes (if necessary)
 void (*initializer_functions[NUM_OF_MODES])() {
+  output_init_quadrat,
   nop,
   output_init_matrix_spiral,
   nop,
