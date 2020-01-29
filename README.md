@@ -7,8 +7,8 @@ Pin 1 des Steckers ist markiert. Wenn der Badge vor einem liegt oben rechts.
 
 ```
 MISO  - 1  2 - VCC (5V)
-Reset - 3  4 - MOSI
-SCK   - 5  6 - GND
+SCK   - 3  4 - MOSI
+Reset - 5  6 - GND
 ```
 
 ### Verkabelung
