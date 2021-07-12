@@ -1,0 +1,1 @@
+void output_fill_matrix_random();

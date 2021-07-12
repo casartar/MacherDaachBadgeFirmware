@@ -1,3 +1,9 @@
+#include <Arduino.h>
+#include "main.h"
+#include "display.h"
+
+void setRow(uint8_t values);
+
 void display() {
   // LED Matrix multiplexing
   static uint8_t state = 0;

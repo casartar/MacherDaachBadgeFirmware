@@ -1,3 +1,8 @@
+#include <Arduino.h>
+#include "pong.h"
+#include "display.h"
+#include "main.h"
+
 extern PROGMEM const byte PONGO[][8] = {
 { // left half of introscreen
   B00000000,

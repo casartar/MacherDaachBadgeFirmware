@@ -1,3 +1,10 @@
+#include "outputShiftString.h"
+#include "main.h"
+#include "display.h"
+#include "characters.h"
+
+void outputShiftString(char * text);
+
 // helper function for mode-array
 void outputShiftString() {
   char text[] = TEXT;

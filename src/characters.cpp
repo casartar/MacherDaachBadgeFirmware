@@ -1,4 +1,7 @@
-extern PROGMEM const byte ASCII[][8] = {
+#include <Arduino.h>
+#include "characters.h"
+
+const byte ASCII[][8] PROGMEM = {
   {// 000
   B00000000,
   B00000000,

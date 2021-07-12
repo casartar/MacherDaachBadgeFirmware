@@ -1,3 +1,9 @@
+#include <Arduino.h>
+#include "output_fill_matrix_random.h"
+#include "main.h"
+
+unsigned int rng();
+
 void output_fill_matrix_random() {
   static uint8_t i = 0;
   if(countdown == 0){

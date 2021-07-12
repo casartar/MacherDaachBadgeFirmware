@@ -1,7 +1,15 @@
+#include <string.h>
+#include "outputShiftUART.h"
+#include "main.h"
+#include "display.h"
+#include "characters.h"
+
 char outputShiftCurrent[UART_INPUT_BUFFER_SIZE];
 char outputShiftNext[UART_INPUT_BUFFER_SIZE];
 bool newDataAvailableFlag = false;
 bool outputShiftCompleteFlag = true;
+
+void outputShiftUART(char * text, bool newstart);
 
 // helper function for mode-array
 void outputShiftUART(){

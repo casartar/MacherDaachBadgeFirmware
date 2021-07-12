@@ -1,3 +1,8 @@
+#include <Arduino.h>
+#include "snake.h"
+#include "display.h"
+#include "main.h"
+
 // crazy snake !!1ELF!
 // mmmixed up and down by schmo-fu
   

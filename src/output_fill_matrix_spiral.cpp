@@ -1,3 +1,10 @@
+#include "output_fill_matrix_spiral.h"
+#include <Arduino.h>
+#include "main.h"
+#include "display.h"
+
+void output_fill_matrix_spiral(bool init);
+
 void output_init_matrix_spiral() {
   output_fill_matrix_spiral(true);
 }
