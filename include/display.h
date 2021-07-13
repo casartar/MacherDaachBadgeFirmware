@@ -1,3 +1,5 @@
+#include <Arduino.h>
+
 void display();
 void clear_matrix_immediatly();
 void matrixSetPixel(byte x, byte y, bool value);
