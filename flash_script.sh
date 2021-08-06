@@ -2,7 +2,7 @@
 
 echo -n 'Name eingeben: ' ; read name
 
-cp include/main.h include/main.h.backup
+test -e include/main.h.backup || cp include/main.h include/main.h.backup
 sed -i "/#define TEXT / s/^.*$/#define TEXT \"$name\" /" include/main.h
 
 echo "$name" >> list_of_names.txt 
