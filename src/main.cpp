@@ -5,7 +5,7 @@
 #include "outputShiftUART.h"
 #include "output_fill_matrix_random.h"
 #include "output_fill_matrix_spiral.h"
-#include "output_square.h"
+//#include "output_square.h"
 #include "pong.h"
 #include "snake.h"
 #include <Arduino.h>
@@ -25,7 +25,7 @@ void (*output_functions[NUM_OF_MODES])() {
     outputShiftString,
     output_fill_matrix_spiral,
     output_fill_matrix_random,
-    output_square,
+    //output_square,
     pong,
     snake,
     outputGraphicsUART,
@@ -37,7 +37,7 @@ void (*initializer_functions[NUM_OF_MODES])() {
     nop,
     output_init_matrix_spiral,
     nop,
-    output_init_square,
+    //output_init_square,
     pong_intro,
     snake_intro,
     nop,
