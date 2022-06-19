@@ -17,7 +17,7 @@
  */
 
 // Output modes and their order
-#define NUM_OF_MODES 8
+#define NUM_OF_MODES 7
 // Mode to display
 static uint8_t outputMode = 0;
 
