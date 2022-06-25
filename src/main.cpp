@@ -109,14 +109,14 @@ void setup()
 
     //Serial.begin(9600);
     // Set timer0 to CTC (clear timer on compare match) mode
-    TCCR0A = (1 << WGM01);
+    TCCR2A = (1 << WGM21);
     // Set prescaler to 64
-    TCCR0B = (1 << CS01);
+    TCCR2B = (1 << CS21);
     // Enable OCR0A interrupt
-    TIMSK0 = (1 << OCIE0A);
+    TIMSK2 = (1 << OCIE2A);
     // Set timer register to 0
-    TCNT0 = 0;
-    OCR0A = 249;
+    TCNT2 = 0;
+    OCR2A = 249;
 
     sei();
     // call initializer of first mode
