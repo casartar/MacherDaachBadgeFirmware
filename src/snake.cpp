@@ -16,21 +16,9 @@ struct segment {
 #define BOTTOM 2
 #define LEFT 3
 
-const uint8_t banner[8][13] PROGMEM = {
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-    { 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0 },
-    { 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0 },
-    { 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0 },
-    { 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1 },
-    { 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0 },
-    { 0, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0 },
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
-};
-
-const char demosnake[] PROGMEM = "ooooooololoroorooroololooox";
-
 void snake_intro()
 {
+    char demosnake[] = "ooooooololoroorooroololooox";
     int8_t snake_head = 6 * 8 + 7;
     int8_t snake_tail = 6 * 8 + 7;
     uint8_t snake_dir = LEFT;
@@ -103,6 +91,16 @@ void snake_intro()
     }
 
     // Shift Snake banner across the screen
+    uint8_t banner[8][13] = {
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0 },
+        { 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1 },
+        { 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0 },
+        { 0, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+    };
     for (uint8_t i = 0; i < 13; i++) {
         matrixShiftLeft(B00000000);
         for (uint8_t j = 0; j < 8; j++) {
