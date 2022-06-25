@@ -1,5 +1,4 @@
 #include "characters.h"
-#include <Arduino.h>
 
 const byte ASCII[][8] PROGMEM = {
     { // 000

@@ -9,7 +9,6 @@
 #include "pong.h"
 #include "snake.h"
 #include <Arduino.h>
-#include <TimerOne.h>
 #include <string.h>
 
 /* --------- --------- --------- ---------
@@ -107,11 +106,19 @@ void setup()
 
     pinMode(button_1_Pin, INPUT_PULLUP);
     pinMode(button_2_Pin, INPUT_PULLUP);
-    Serial.begin(9600);
-    Timer1.initialize();
-    // The display function gets called every 2 ms
-    Timer1.attachInterrupt(display, TIMER_PERIOD_IN_MS * 1000);
 
+    //Serial.begin(9600);
+    // Set timer0 to CTC (clear timer on compare match) mode
+    TCCR0A = (1 << WGM01);
+    // Set prescaler to 64
+    TCCR0B = (1 << CS01);
+    // Enable OCR0A interrupt
+    TIMSK0 = (1 << OCIE0A);
+    // Set timer register to 0
+    TCNT0 = 0;
+    OCR0A = 249;
+
+    sei();
     // call initializer of first mode
     initializer_functions[0]();
 }
@@ -146,6 +153,7 @@ void loop()
 // Helper function for output_mode array
 void nop() { }
 
+/*
 void serialEvent()
 {
     static uint8_t index = 0;
@@ -175,3 +183,4 @@ void serialEvent()
         }
     }
 }
+*/

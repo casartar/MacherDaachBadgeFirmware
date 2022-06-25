@@ -3,19 +3,20 @@
 #include "display.h"
 #include "main.h"
 
-void outputShiftString(char* text);
+const char text[] PROGMEM = TEXT;
+
+void outputShiftString(const char* text);
 
 // helper function for mode-array
 void outputShiftString()
 {
-    char text[] = TEXT;
     outputShiftString(text);
 }
 
 //Shifts string through matrix
-void outputShiftString(char* text)
+void outputShiftString(const char* text)
 {
-    char* t;
+    const char* t;
     static int i = 0;
     static int xOffset = 0;
     static int yOffset = 0;
