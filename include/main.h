@@ -16,7 +16,7 @@
 // switch modes after pressing both buttons for this many seconds
 #define SWITCH_TIME 2
 
-#define UART_INPUT_BUFFER_SIZE 256
+#define UART_INPUT_BUFFER_SIZE 200
 
 /* --------- --------- --------- ---------
  * general Setup of the badge hardware

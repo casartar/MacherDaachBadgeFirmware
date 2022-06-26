@@ -107,7 +107,7 @@ void setup()
     pinMode(button_1_Pin, INPUT_PULLUP);
     pinMode(button_2_Pin, INPUT_PULLUP);
 
-    //Serial.begin(9600);
+    Serial.begin(9600);
     // Set timer0 to CTC (clear timer on compare match) mode
     TCCR2A = (1 << WGM21);
     // Set prescaler to 64
@@ -153,7 +153,6 @@ void loop()
 // Helper function for output_mode array
 void nop() { }
 
-/*
 void serialEvent()
 {
     static uint8_t index = 0;
@@ -183,4 +182,3 @@ void serialEvent()
         }
     }
 }
-*/

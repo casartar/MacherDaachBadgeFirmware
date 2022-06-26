@@ -16,9 +16,21 @@ struct segment {
 #define BOTTOM 2
 #define LEFT 3
 
+const uint8_t banner[8][13] PROGMEM = {
+    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+    { 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0 },
+    { 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0 },
+    { 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0 },
+    { 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1 },
+    { 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0 },
+    { 0, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0 },
+    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+};
+
+const char demosnake[] PROGMEM = "ooooooololoroorooroololooox";
+
 void snake_intro()
 {
-    char demosnake[] = "ooooooololoroorooroololooox";
     int8_t snake_head = 6 * 8 + 7;
     int8_t snake_tail = 6 * 8 + 7;
     uint8_t snake_dir = LEFT;
@@ -29,7 +41,7 @@ void snake_intro()
     matrixSetPixel(5, 1, true);
 
     // Snake-Animation
-    while (demosnake[snake_sim] != 'x') {
+    while (pgm_read_byte(&(demosnake[snake_sim])) != 'x') {
 
         // display snake
         matrixSetPixel(snake_head % 8, snake_head / 8, true); // show next head position
@@ -38,13 +50,13 @@ void snake_intro()
         }
 
         // button simulation
-        if (demosnake[snake_sim] == 'r') { // turn to the right
+        if (pgm_read_byte(&(demosnake[snake_sim])) == 'r') { // turn to the right
             if (snake_dir == TOP) {
                 snake_dir = LEFT;
             } else {
                 snake_dir--;
             }
-        } else if (demosnake[snake_sim] == 'l') { // turn to the left
+        } else if (pgm_read_byte(&(demosnake[snake_sim])) == 'l') { // turn to the left
             if (snake_dir == LEFT) {
                 snake_dir = TOP;
             } else {
@@ -91,20 +103,10 @@ void snake_intro()
     }
 
     // Shift Snake banner across the screen
-    uint8_t banner[8][13] = {
-        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-        { 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0 },
-        { 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0 },
-        { 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0 },
-        { 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1 },
-        { 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0 },
-        { 0, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0 },
-        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
-    };
     for (uint8_t i = 0; i < 13; i++) {
         matrixShiftLeft(B00000000);
         for (uint8_t j = 0; j < 8; j++) {
-            matrixSetPixel(7, 7 - j, banner[j][i]);
+            matrixSetPixel(7, 7 - j, pgm_read_byte(&(banner[j][i])));
         }
         delay(150);
     }
