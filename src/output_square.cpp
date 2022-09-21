@@ -7,7 +7,6 @@
 #include "main.h"
 #include <Arduino.h>
 
-
 void output_square(bool init);
 
 void output_init_square()
@@ -68,7 +67,7 @@ bool LEDonoff(bool ledOn)
         return false;
     }
     // If the LEDs were off, the LEDs are switched on
-    else if (ledOn == false) {
+    else {
         return true;
     }
 }
