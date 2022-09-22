@@ -7,7 +7,7 @@
 #include "output_fill_matrix_spiral.h"
 //#include "output_square.h"
 #include "pong.h"
-#include "snake.h"
+//#include "snake.h"
 #include <Arduino.h>
 #include <string.h>
 
@@ -16,7 +16,7 @@
  */
 
 // Output modes and their order
-#define NUM_OF_MODES 7
+#define NUM_OF_MODES 6
 // Mode to display
 static uint8_t outputMode = 0;
 
@@ -24,9 +24,9 @@ void (*output_functions[NUM_OF_MODES])() {
     outputShiftString,
     output_fill_matrix_spiral,
     output_fill_matrix_random,
-    //output_square,
+    // output_square,
     pong,
-    snake,
+    // snake,
     outputGraphicsUART,
     outputShiftUART
 };
@@ -36,9 +36,9 @@ void (*initializer_functions[NUM_OF_MODES])() {
     nop,
     output_init_matrix_spiral,
     nop,
-    //output_init_square,
+    // output_init_square,
     pong_intro,
-    snake_intro,
+    // snake_intro,
     nop,
     nop
 };
@@ -125,8 +125,8 @@ void setup()
 
 void loop()
 {
-    //outputShiftString("123abc");
-    //output_fill_matrix_slow();
+    // outputShiftString("123abc");
+    // output_fill_matrix_slow();
 
     if (reqModeSwitch) {
         // both buttons were pressed for 3 seconds
