@@ -7,7 +7,9 @@
 #include "output_fill_matrix_spiral.h"
 //#include "output_square.h"
 #include "pong.h"
-//#include "snake.h"
+#if !defined(__AVR_ATmega168P__)
+#include "snake.h"
+#endif
 #include <Arduino.h>
 #include <string.h>
 
@@ -16,31 +18,41 @@
  */
 
 // Output modes and their order
+#if defined(__AVR_ATmega168P__)
 #define NUM_OF_MODES 6
+#else
+#define NUM_OF_MODES 7
+#endif
 // Mode to display
 static uint8_t outputMode = 0;
 
-void (*output_functions[NUM_OF_MODES])() {
+void (*output_functions[NUM_OF_MODES])()
+{
     outputShiftString,
-    output_fill_matrix_spiral,
-    output_fill_matrix_random,
-    // output_square,
-    pong,
-    // snake,
-    outputGraphicsUART,
-    outputShiftUART
+        output_fill_matrix_spiral,
+        output_fill_matrix_random,
+        // output_square,
+        pong,
+#if !defined(__AVR_ATmega168P__)
+        snake,
+#endif
+        outputGraphicsUART,
+        outputShiftUART
 };
 
 // Initializers to output modes (if necessary)
-void (*initializer_functions[NUM_OF_MODES])() {
+void (*initializer_functions[NUM_OF_MODES])()
+{
     nop,
-    output_init_matrix_spiral,
-    nop,
-    // output_init_square,
-    pong_intro,
-    // snake_intro,
-    nop,
-    nop
+        output_init_matrix_spiral,
+        nop,
+        // output_init_square,
+        pong_intro,
+#if !defined(__AVR_ATmega168P__)
+        snake_intro,
+#endif
+        nop,
+        nop
 };
 
 volatile button_state button_1_state = BUTTON_INACTIVE;
