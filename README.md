@@ -1,5 +1,40 @@
 # MacherDaachBadgeFirmware
 
+In folgendem erklären wir wie man den Badge mit dem Raspberry Pi oder dem Arduino programmiert. 
+
+## Verbinden des Raspberry Pi mit dem Badge
+
+### ISP Pinheader (6 polig)
+Pin 1 des Steckers ist markiert. Wenn der Badge vor einem liegt oben rechts.
+
+```
+MISO  - 1  2 - VCC (5V)
+SCK   - 3  4 - MOSI
+Reset - 5  6 - GND
+```
+
+### Verkabelung
+
+Badge    | Farbe    | Raspberry Pi
+-------- | -------- | --------
+ISP 1    | Schwarz  | 9
+ISP 2    | Weiß     | 3v3
+ISP 3    | Grau     | 11
+ISP 4    | Lila     | 10
+ISP 5    | Blau     | 25
+ISP 6    | Grün     | GND
+
+![](Pictures/raspberry-pi-pinout.png)
+
+
+### Den Badge mit dem Raspberry Pi programmieren
+
+Um den Sketch aus dem Arduino IDE auf die Badge zu übertragen muss das SPI Interface aktiv sein (`raspi-config`), anschließend kann folgendes Kommando benutzt werden:
+```
+sudo avrdude -P /dev/spidev0.0 -c linuxspi -p m328p -U flash:w:MacherDaachBadgeFirmware.ino.with_bootloader.arduino_standard.hex
+```
+
+
 ## Verbinden des Arduinos mit dem Badge
 
 ### ISP Pinheader (6 polig)
@@ -7,8 +42,8 @@ Pin 1 des Steckers ist markiert. Wenn der Badge vor einem liegt oben rechts.
 
 ```
 MISO  - 1  2 - VCC (5V)
-Reset - 3  4 - MOSI
-SCK   - 5  6 - GND
+SCK   - 3  4 - MOSI
+Reset - 5  6 - GND
 ```
 
 ### Verkabelung
