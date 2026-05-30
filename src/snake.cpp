@@ -1,4 +1,5 @@
 #include "snake.h"
+#include "audio.h"
 #include "display.h"
 #include "main.h"
 #include <Arduino.h>
@@ -28,6 +29,8 @@ const uint8_t banner[8][13] PROGMEM = {
 };
 
 const char demosnake[] PROGMEM = "ooooooololoroorooroololooox";
+
+uint8_t note_counter = 0;
 
 void snake_intro()
 {
@@ -99,6 +102,8 @@ void snake_intro()
 
         // animation speed
         snake_sim += 1;
+        playAudio(C_0 + note_counter, FULL);
+        note_counter++;
         delay(100);
     }
 
@@ -108,13 +113,16 @@ void snake_intro()
         for (uint8_t j = 0; j < 8; j++) {
             matrixSetPixel(7, 7 - j, pgm_read_byte(&(banner[j][i])));
         }
+        playAudio(C_0 + note_counter, FULL);
+        note_counter++;
         delay(150);
     }
     matrixShiftLeft(B00000000);
+    playAudio(STOP, STOP);
 
     // cleanup after the intro
     delay(400);
-    clear_matrix_immediatly_without_reset();
+    clear_matrix_immediately_without_reset();
 }
 
 void snake()
@@ -155,7 +163,7 @@ void snake()
         egg_timer += 1;
         if (egg_timer == 15000) {
             egg_timer = 0;
-            clear_matrix_immediatly_without_reset();
+            clear_matrix_immediately_without_reset();
             snake_intro();
         }
     }
@@ -201,6 +209,7 @@ void snake()
             } else {
                 snake_age = 0;
             }
+            playAudio(F_2, FULL);
             // create new mouse at some later time
             mouse_pos = 64 + 4; // wait for three turns
         } else {
@@ -230,7 +239,7 @@ void snake()
         }
 
         // reset last frame
-        clear_matrix_immediatly_without_reset();
+        clear_matrix_immediately_without_reset();
         // update and draw mouse
         if (mouse_pos < 64) {
             matrixSetPixel(mouse_pos % 8, mouse_pos / 8, true);

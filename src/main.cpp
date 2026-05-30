@@ -1,11 +1,12 @@
 #include "main.h"
+#include "audio.h"
 #include "display.h"
 #include "outputGraphicsUART.h"
 #include "outputShiftString.h"
 #include "outputShiftUART.h"
 #include "output_fill_matrix_random.h"
 #include "output_fill_matrix_spiral.h"
-//#include "output_square.h"
+// #include "output_square.h"
 #include "pong.h"
 #if !defined(__AVR_ATmega168P__)
 #include "snake.h"
@@ -26,33 +27,31 @@
 // Mode to display
 static uint8_t outputMode = 0;
 
-void (*output_functions[NUM_OF_MODES])()
-{
+void (*output_functions[NUM_OF_MODES])() {
     outputShiftString,
-        output_fill_matrix_spiral,
-        output_fill_matrix_random,
-        // output_square,
-        pong,
+    output_fill_matrix_spiral,
+    output_fill_matrix_random,
+    // output_square,
+    pong,
 #if !defined(__AVR_ATmega168P__)
-        snake,
+    snake,
 #endif
-        outputGraphicsUART,
-        outputShiftUART
+    outputGraphicsUART,
+    outputShiftUART
 };
 
 // Initializers to output modes (if necessary)
-void (*initializer_functions[NUM_OF_MODES])()
-{
+void (*initializer_functions[NUM_OF_MODES])() {
     nop,
-        output_init_matrix_spiral,
-        nop,
-        // output_init_square,
-        pong_intro,
+    output_init_matrix_spiral,
+    nop,
+    // output_init_square,
+    pong_intro,
 #if !defined(__AVR_ATmega168P__)
-        snake_intro,
+    snake_intro,
 #endif
-        nop,
-        nop
+    nop,
+    nop
 };
 
 volatile button_state button_1_state = BUTTON_INACTIVE;
@@ -130,7 +129,16 @@ void setup()
     TCNT2 = 0;
     OCR2A = 249;
 
-    sei();
+#ifdef SOUNDBADGE
+    // set pin to INPUT_PULLUP to supress buzzing on matrix update
+    pinMode(audio_out_pin, INPUT_PULLUP);
+
+    // Configure timer1 for Fast PWM mode
+    // WGM13:10 = 1110 (Fast PWM, TOP = ICR1)
+    TCCR1A = (1 << COM1A1) | (1 << WGM11);
+    TCCR1B = (1 << WGM13) | (1 << WGM12) | (1 << CS10); // No prescaler
+#endif
+
     // call initializer of first mode
     initializer_functions[0]();
 }
@@ -145,7 +153,7 @@ void loop()
         reqModeSwitch = 0;
 
         // create a defined state and turn off all leds
-        clear_matrix_immediatly();
+        clear_matrix_immediately();
 
         // switch output mode
         outputMode++;
@@ -154,9 +162,14 @@ void loop()
             outputMode = 0;
         }
 
+        randomSeed(analogRead(19)); // Pin PB7 XTAL2 (floating))
+        playAudio(STOP, STOP);
+
         // Do initializations for a new output mode here if necessary
         initializer_functions[outputMode]();
     }
+
+    updateAudio();
 
     // Call your output mode in this switch
     output_functions[outputMode]();

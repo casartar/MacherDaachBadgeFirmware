@@ -1,3 +1,5 @@
 {
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "idf.currentSetup": "C:\\Users\\Joachim\\esp\\v5.3\\esp-idf",
+    "sarif-viewer.connectToGithubCodeScanning": "off"
 }

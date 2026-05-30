@@ -1,4 +1,5 @@
 #include "pong.h"
+#include "audio.h"
 #include "display.h"
 #include "main.h"
 #include <Arduino.h>
@@ -50,7 +51,7 @@ extern PROGMEM const byte PONGO[][8] = {
 
 void pong_intro()
 {
-
+    // playAudio(C_3, FULL);
     for (int i = 0; i < 5; i++) {
         for (int xOffset = 0; xOffset >= -8; xOffset -= 1) {
             // left part
@@ -61,14 +62,23 @@ void pong_intro()
             if (xOffset <= -1) {
                 displayCharacterOffset(PONGO[1], xOffset + 8, 0);
             }
-            delay(150 - i * 25);
+            playAudio(A_3, FULL);
+            delay(50 - i * 5);
+            playAudio(STOP, STOP);
+            delay(100 - i * 20);
+            // delay(150 - i * 25);
         }
+        // playAudio(C_4, FULL);
         for (int xOffset = -7; xOffset < 0; xOffset += 1) {
             // left part
             displayCharacterOffset(PONGO[0], xOffset, 0);
             // right part
             displayCharacterOffset(PONGO[1], xOffset + 8, 0);
-            delay(150 - i * 25 - 12);
+            playAudio(A_4, FULL);
+            delay(50 - i * 5);
+            playAudio(STOP, STOP);
+            delay(100 - i * 20 - 12);
+            // delay(150 - i * 25 - 12);
         }
     }
 }
@@ -133,7 +143,7 @@ void pong()
         }
 
         // reset last frame
-        clear_matrix_immediatly_without_reset();
+        clear_matrix_immediately_without_reset();
 
         switch (game_state) {
         case PLAY:
@@ -154,6 +164,7 @@ void pong()
             matrixSetPixel(points_b, 7, true);
             blinker += 1;
             countdown = 100;
+            playAudio(C_2, FULL);
             break;
 
         case POINT_B:
@@ -161,6 +172,7 @@ void pong()
             matrixSetPixel(points_b, 7, blinker & 0x01);
             blinker += 1;
             countdown = 100;
+            playAudio(C_4, FULL);
             break;
 
         case WIN:
@@ -171,6 +183,7 @@ void pong()
                 displayCharacter(PONGO[2]);
                 direction = true; // nächstes Spiel startet beim Verlierer
             }
+            playAudio(C_3, FULL);
             // get ready for the next game
             if (direction) {
                 pos_act = 7;

@@ -1,4 +1,5 @@
 #include "output_fill_matrix_random.h"
+#include "audio.h"
 #include "main.h"
 #include <Arduino.h>
 
@@ -14,6 +15,7 @@ void output_fill_matrix_random()
         i++;
         if (i > 7) {
             i = 0;
+            playAudio((x & 0x1F) + 14, QUARTER);
         }
         countdown = TIME_20_MS;
     }
