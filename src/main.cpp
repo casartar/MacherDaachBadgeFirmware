@@ -158,7 +158,7 @@ void loop()
         // switch output mode
         outputMode++;
         // Check if max was reached, ignore last two modes (only available over uart)
-        if (outputMode == NUM_OF_MODES - 2) {
+        if (outputMode >= NUM_OF_MODES - 2) {
             outputMode = 0;
         }
 
@@ -188,14 +188,14 @@ void serialEvent()
             // Buffer is full - discard characters until CR is received
             return;
         } else if (inChar == '\r') {
-            outputMode = 6; // switch output to outputShiftUART
+            outputMode = NUM_OF_MODES - 1; // switch output to outputShiftUART
             // if the incoming character is a CR, set a flag so the main loop can
             // do something about it:
             uartInputBuffer[index] = '\0';
             index = 0;
             uartReceiveCompleteFlag = true;
         } else if (inChar == '\t') {
-            outputMode = 5; // switch output to outputShiftUART
+            outputMode = NUM_OF_MODES - 2; // switch output to outputGraphicsUART
             // if the incoming character is a TAB, set a flag so the main loop can
             // do something about it:
             uartInputBuffer[index] = '\0';

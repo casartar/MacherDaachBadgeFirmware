@@ -1,3 +1,5 @@
+#ifndef MAIN_H
+#define MAIN_H
 #include <Arduino.h>
 
 // the text to display in OutputShiftString-Mode:
@@ -78,3 +80,4 @@ extern volatile bool uartReceiveCompleteFlag;
 extern volatile char uartInputBuffer[UART_INPUT_BUFFER_SIZE];
 
 void nop();
+#endif

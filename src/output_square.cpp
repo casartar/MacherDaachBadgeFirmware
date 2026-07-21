@@ -43,7 +43,7 @@ void draw_split(uint8_t pos_x, uint8_t pos_y, bool ledOn, uint8_t ysize, uint8_t
     }
 }
 // There is a change of direction when one is needed (at the edges).
-uint8_t leftright(uint8_t olddirection, uint8_t pos_row)
+int8_t leftright(int8_t olddirection, int8_t pos_row)
 {
     // When the x-row of LEDs is over
     // When the object is all the way to the right, it moves to the left again
@@ -136,7 +136,7 @@ void output_square(bool init)
         // Split paint(ledOn = 1)
         draw_split(split_pos_row, split_pos_colum, ledOn, ysplit_size, xsplit_size);
 
-        countdown = TIME_1_S; //the countdown is set from 1 to 0 every time, it makes the object move every second, time changeable
+        countdown = TIME_1_S; // the countdown is set from 1 to 0 every time, it makes the object move every second, time changeable
     }
 
     // Square
@@ -159,7 +159,7 @@ void output_square(bool init)
         ledOn = LEDonoff(ledOn);
 
         // Draw square(ledOn = 1)
-        draw_square(square_pos_row, square_pos_column, ledOn, square_pos_row);
+        draw_square(square_pos_row, square_pos_column, ledOn, square_size);
 
         // The countdown is set again and again from 0 to 1 and then again from 1 to 0. This makes that the object moves every 1 second, the time is changeable
         countdown = TIME_1_S;

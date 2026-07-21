@@ -137,7 +137,7 @@ void matrixSetPixel(byte x, byte y, bool value)
 
 bool matrixGetPixel(byte x, byte y)
 {
-    return bitRead(matrix[y], x);
+    return bitRead(matrix[x], y);
 }
 
 void matrixShiftUp()

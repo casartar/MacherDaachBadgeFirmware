@@ -1,3 +1,5 @@
+#ifndef AUDIO_H
+#define AUDIO_H
 #include <Arduino.h>
 
 const uint8_t duty_cycle = 50; // 50% duty cycle for audio PWM
@@ -12,21 +14,9 @@ const int FULL_NOTE_DURATION = 1000; // duration of a full note in loop cycles
 #define EIGHT 8
 #define SIXTEENTH 16
 
-// note frequencies (hertz)
-const int16_t notes[] PROGMEM = {
-    // Octave 0
-    131, 139, 147, 156, 165, 175, 185, 196, 208, 220, 233, 247,
-    // Octave 1
-    262, 277, 294, 311, 330, 349, 370, 392, 415, 440, 466, 494,
-    // Octave 2
-    523, 554, 587, 622, 659, 698, 740, 784, 831, 880, 932, 988,
-    // Octave 3
-    1047, 1109, 1175, 1245, 1319, 1397, 1480, 1568, 1661, 1760, 1865, 1976,
-    // OCtave 4
-    2093, 2217, 2349, 2489, 2637, 2794, 2960, 3136, 3322, 3520, 3729, 3951
-};
+extern const int16_t notes[] PROGMEM;
 
-// names fpr notes-indices (S = Sharp, #)
+// names for notes-indices (S = Sharp, #)
 #define C_0 0
 #define CS_0 1
 #define D_0 2
@@ -94,3 +84,5 @@ const int16_t notes[] PROGMEM = {
 
 void updateAudio();
 void playAudio(int frequency_hertz, int note_length);
+
+#endif
