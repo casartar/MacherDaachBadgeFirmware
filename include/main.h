@@ -38,7 +38,7 @@ const uint8_t LED_X6 = 7; // PD7    Pin 11
 const uint8_t LED_X7 = 8; // PB0    Pin 15
 #ifdef SOUNDBADGE
 const uint8_t LED_X8 = 20; // PB6    Pin 16
-const uint8_t audio_out_pin = 9; // PB1 OC1A von Timer1
+const uint8_t audio_out_pin = 9; // PB1 OC1A of Timer1
 #else
 const uint8_t LED_X8 = 9; // PB1    Pin 16
 #endif

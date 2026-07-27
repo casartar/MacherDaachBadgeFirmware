@@ -26,7 +26,7 @@ void draw_square(uint8_t pos_x, uint8_t pos_y, bool ledOn, uint8_t size)
     {
         for (uint8_t k = 0; k < size; k++) // y-column
         {
-            matrixSetPixel(i + pos_x, k + pos_y, ledOn); // Pixel an/aus machen bei bestimmter Position
+            matrixSetPixel(i + pos_x, k + pos_y, ledOn); // Turn pixel on/off at a specific position
         }
     }
 }
@@ -38,7 +38,7 @@ void draw_split(uint8_t pos_x, uint8_t pos_y, bool ledOn, uint8_t ysize, uint8_t
     {
         for (uint8_t n = 0; n < ysize; n = n + 2) // y-column
         {
-            matrixSetPixel(m + pos_x, n + pos_y, ledOn); // Pixel an/aus machen bei bestimmter Position
+            matrixSetPixel(m + pos_x, n + pos_y, ledOn); // Turn pixel on/off at a specific position
         }
     }
 }

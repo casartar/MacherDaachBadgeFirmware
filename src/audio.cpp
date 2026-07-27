@@ -1,7 +1,7 @@
 #include "audio.h"
 #include "main.h"
 
-volatile unsigned long audio_duration = 0; // Ticks bis Ton stoppt, wird in der TIMER2-ISR heruntergezählt
+volatile unsigned long audio_duration = 0; // ticks until the tone stops, decremented in the TIMER2 ISR
 
 // note frequencies (hertz)
 const int16_t notes[] PROGMEM = {
@@ -20,9 +20,9 @@ const int16_t notes[] PROGMEM = {
 #ifdef SOUNDBADGE
 void playAudio(int note_index, int note_length)
 {
-    // Register-Schreibzugriffe atomar machen: playAudio() wird sowohl aus der
-    // TIMER2-ISR (Tastenklick-Sound) als auch aus der Hauptschleife aufgerufen -
-    // ohne Schutz können sich beide Aufrufe verschränken und Ton/Dauer verfälschen.
+    // Make the register writes atomic: playAudio() is called both from the
+    // TIMER2 ISR (button click sound) and from the main loop - without
+    // protection, the two calls could interleave and corrupt tone/duration.
     uint8_t oldSREG = SREG;
     cli();
 
@@ -51,10 +51,10 @@ void playAudio(int note_index, int note_length)
         // Calculate OCR1A value based on duty cycle percentage
         OCR1A = (unsigned int)(((float)duty_cycle / 100.0) * ICR1);
 
-        // ICR1 ist im Fast-PWM-Modus nicht doppelt gepuffert: bliebe ein alter Zählerstand
-        // (von der vorherigen Note) stehen, der größer als der neue ICR1-Wert ist, müsste der
-        // Timer erst bis 0xFFFF überlaufen, bevor der neue TOP-Wert greift - hörbarer Aussetzer/
-        // falscher Ton. Zähler daher vor dem (Neu-)Start explizit zurücksetzen.
+        // ICR1 is not double-buffered in Fast PWM mode: if the counter is left at an old
+        // value (from the previous note) that is greater than the new ICR1, the timer would
+        // first have to overflow past 0xFFFF before the new TOP value takes effect - causing
+        // an audible glitch/wrong tone. So reset the counter explicitly before (re)starting.
         TCNT1 = 0;
 
         // Start Timer1

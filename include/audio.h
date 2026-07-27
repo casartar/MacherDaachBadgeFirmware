@@ -6,7 +6,7 @@ const uint8_t duty_cycle = 50; // 50% duty cycle for audio PWM
 
 const uint8_t notes_size = 60; // 60 notes in 5 octaves
 
-// Notendauer in 2ms-Timer-Ticks (TIMER_PERIOD_IN_MS) - z.B. FULL = 100 Ticks = 200ms
+// Note duration in 2ms timer ticks (TIMER_PERIOD_IN_MS) - e.g. FULL = 100 ticks = 200ms
 const int FULL_NOTE_DURATION = 150;
 #define STOP 0
 #define FULL 1
@@ -17,7 +17,7 @@ const int FULL_NOTE_DURATION = 150;
 #define SIXTEENTH 16
 
 extern const int16_t notes[] PROGMEM;
-extern volatile unsigned long audio_duration; // wird alle 2ms in der TIMER2-ISR heruntergezählt
+extern volatile unsigned long audio_duration; // decremented every 2ms in the TIMER2 ISR
 
 // names for notes-indices (S = Sharp, #)
 #define C_0 0

@@ -45,7 +45,7 @@ ISR(TIMER2_COMPA_vect)
                 button_1_state = BUTTON_HELD; // now, this counts
                 debounce_timer_1 = TIME_20_MS; // --> read button every 20ms
 
-                playAudio(A_1, HALF); // button 1 = left - erst nach bestätigtem Druck (kein Glitch-Klick)
+                playAudio(A_1, HALF); // button 1 = left - only after a confirmed press (no glitch click)
 
             } else {
                 button_1_state = BUTTON_INACTIVE; // nope, just a glitch
@@ -79,7 +79,7 @@ ISR(TIMER2_COMPA_vect)
                 button_2_state = BUTTON_HELD; // now, this counts
                 debounce_timer_2 = TIME_20_MS; // --> read button every 20ms while on hold
 
-                playAudio(A_2, HALF); // button 2 = right - erst nach bestätigtem Druck (kein Glitch-Klick)
+                playAudio(A_2, HALF); // button 2 = right - only after a confirmed press (no glitch click)
 
             } else {
                 button_2_state = BUTTON_INACTIVE; // nope, just a glitch
@@ -117,7 +117,7 @@ ISR(TIMER2_COMPA_vect)
     if (countdown > 0)
         countdown--;
 
-    // Notendauer zeitgenau (alle 2ms) statt abhängig von der Hauptschleifen-Geschwindigkeit herunterzählen
+    // Decrement note duration precisely (every 2ms) instead of depending on main-loop speed
     if (audio_duration > 0) {
         audio_duration--;
         if (audio_duration == 0) {

@@ -178,10 +178,10 @@ void pong()
         case WIN:
             if (points_b == 9) {
                 displayCharacter(PONGO[3]);
-                direction = false; // nächstes Spiel startet beim Verlierer
+                direction = false; // next game starts with the loser
             } else {
                 displayCharacter(PONGO[2]);
-                direction = true; // nächstes Spiel startet beim Verlierer
+                direction = true; // next game starts with the loser
             }
             playAudio(C_3, FULL);
             // get ready for the next game

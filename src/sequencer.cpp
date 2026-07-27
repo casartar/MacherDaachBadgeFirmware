@@ -5,17 +5,17 @@
 #include <Arduino.h>
 #include <EEPROM.h>
 
-// Notenkonstanten für Tonhöhe 1-7 (Zeilenindex - 1 = Array-Index)
+// Note constants for pitch 1-7 (row index - 1 = array index)
 static const int16_t PITCH_NOTES[7] = { C_2, D_2, E_2, F_2, G_2, A_2, H_2 };
 
-#define SEQUENCER_IDLE_TIMEOUT (3 * TIME_1_S) // 3s ohne Tastendruck -> Auto-Play startet
-#define SEQUENCER_STEP_TIME (TIME_1_S / 4) // 2000ms / 8 Spalten = 250ms pro Schritt
-#define SEQUENCER_EEPROM_BASE_ADDR 0 // 8 Bytes (eins je Spalte) ab dieser EEPROM-Adresse
+#define SEQUENCER_IDLE_TIMEOUT (3 * TIME_1_S) // 3s without a key press -> auto-play starts
+#define SEQUENCER_STEP_TIME (TIME_1_S / 4) // 2000ms / 8 columns = 250ms per step
+#define SEQUENCER_EEPROM_BASE_ADDR 0 // 8 bytes (one per column) starting at this EEPROM address
 
 static bool auto_playing = false;
-static bool needs_redraw = true; // nur neu zeichnen, wenn sich am LED-Status etwas ändert (sonst Flackern)
-static bool waiting_for_release = true; // nach Moduswechsel erst Loslassen beider Tasten abwarten
-static uint8_t column_pitch[8]; // Tonhöhe je Spalte, 0 = aus, 1..7 = Zeile/Note - im EEPROM gespeichert
+static bool needs_redraw = true; // only redraw when the LED state actually changes (avoids flicker)
+static bool waiting_for_release = true; // after a mode switch, wait for both buttons to be released first
+static uint8_t column_pitch[8]; // pitch per column, 0 = off, 1..7 = row/note - stored in EEPROM
 
 void sequencer_intro()
 {
@@ -27,7 +27,7 @@ void sequencer_intro()
     for (uint8_t c = 0; c < 8; c++) {
         column_pitch[c] = EEPROM.read(SEQUENCER_EEPROM_BASE_ADDR + c);
         if (column_pitch[c] > 7) {
-            // ungültiger/unbeschriebener EEPROM-Inhalt (z.B. 0xFF im Werkszustand)
+            // invalid/unwritten EEPROM content (e.g. 0xFF in factory state)
             column_pitch[c] = 0;
         }
     }
@@ -35,15 +35,15 @@ void sequencer_intro()
 
 void sequencer()
 {
-    static uint8_t column = 0; // aktive Spalte, 0 = links .. 7 = rechts
-    static bool consumed_1 = false; // linker Button (Tonhöhe wechseln) - Einzel-Klick-Sperre
-    static bool consumed_2 = false; // rechter Button (Spalte weiter) - Einzel-Klick-Sperre
+    static uint8_t column = 0; // active column, 0 = left .. 7 = right
+    static bool consumed_1 = false; // left button (change pitch) - single-click lock
+    static bool consumed_2 = false; // right button (next column) - single-click lock
 
     if (waiting_for_release) {
-        // Nach dem Moduswechsel (2s beide Tasten gehalten) sind die Tasten oft noch
-        // kurz gedrückt - erst wenn beide wirklich losgelassen wurden, werden
-        // Tastendrücke im Sequencer verarbeitet (sonst zählt der Moduswechsel-Druck
-        // fälschlich als erste Editier-Aktion).
+        // After a mode switch (2s both buttons held), the buttons are often still
+        // briefly pressed - only once both are truly released are key presses
+        // processed in the sequencer (otherwise the mode-switch press would
+        // wrongly count as the first edit action).
         if (button_1_state == BUTTON_INACTIVE && button_2_state == BUTTON_INACTIVE) {
             waiting_for_release = false;
             countdown = SEQUENCER_IDLE_TIMEOUT;
@@ -51,10 +51,10 @@ void sequencer()
     } else {
         bool button_pressed = false;
 
-        // Linker Button: Tonhöhe der AKTIVEN Spalte weiterschalten
+        // Left button: cycle the pitch of the ACTIVE column
         if (!consumed_1) {
             if (button_1_state == BUTTON_HELD) {
-                column_pitch[column] = (column_pitch[column] + 1) % 8; // 0..7, wrap zu 0 (aus)
+                column_pitch[column] = (column_pitch[column] + 1) % 8; // 0..7, wraps to 0 (off)
                 EEPROM.update(SEQUENCER_EEPROM_BASE_ADDR + column, column_pitch[column]);
                 if (column_pitch[column] == 0) {
                     playAudio(STOP, STOP);
@@ -68,7 +68,7 @@ void sequencer()
             consumed_1 = false;
         }
 
-        // Rechter Button: aktive Spalte weiterschalten
+        // Right button: advance the active column
         if (!consumed_2) {
             if (button_2_state == BUTTON_HELD) {
                 column = (column + 1) % 8; // wrap 7 -> 0
@@ -80,20 +80,20 @@ void sequencer()
         }
 
         if (button_pressed) {
-            // Tastendruck -> zurück ins Editieren, Idle-Timer neu starten
+            // key press -> back to editing, restart the idle timer
             auto_playing = false;
             countdown = SEQUENCER_IDLE_TIMEOUT;
             needs_redraw = true;
         } else if (countdown == 0) {
             if (auto_playing) {
-                // nächster Schritt der automatischen Wiedergabe
+                // next step of the automatic playback
                 column = (column + 1) % 8;
                 if (column_pitch[column] > 0) {
                     playAudio(PITCH_NOTES[column_pitch[column] - 1], TENTH);
                 }
                 countdown = SEQUENCER_STEP_TIME;
             } else {
-                // 3 Sekunden ohne Tastendruck -> Wiedergabe starten
+                // 3 seconds without a key press -> start playback
                 auto_playing = true;
                 countdown = SEQUENCER_STEP_TIME;
             }
@@ -106,16 +106,16 @@ void sequencer()
     }
     needs_redraw = false;
 
-    // Nur bei tatsächlicher Zustandsänderung neu zeichnen (vermeidet Flackern)
+    // Only redraw on an actual state change (avoids flicker)
     clear_matrix_immediately_without_reset();
-    matrixSetPixel(column, 0, true); // Cursor, unterste Zeile
+    matrixSetPixel(column, 0, true); // cursor, bottom row
     if (auto_playing) {
-        // Auto-Play: nur die Tonhöhe der gerade abgespielten Spalte zeigen
+        // auto-play: only show the pitch of the column currently being played
         if (column_pitch[column] > 0) {
             matrixSetPixel(column, column_pitch[column], true);
         }
     } else {
-        // Editieren: Tonhöhen-LEDs aller Spalten gleichzeitig zeigen
+        // editing: show pitch LEDs of all columns at once
         for (uint8_t c = 0; c < 8; c++) {
             if (column_pitch[c] > 0) {
                 matrixSetPixel(c, column_pitch[c], true);
