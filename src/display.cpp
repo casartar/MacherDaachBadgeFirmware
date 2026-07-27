@@ -40,12 +40,13 @@ ISR(TIMER2_COMPA_vect)
             debounce_timer_1 = TIME_50_MS; // 50ms
             button_1_state = BUTTON_PRESSED;
 
-            playAudio(A_1, HALF); // button 1 = left
-
         } else if (button_1_state == BUTTON_PRESSED) { // aka 50MS later ...
             if (val == LOW) {
                 button_1_state = BUTTON_HELD; // now, this counts
                 debounce_timer_1 = TIME_20_MS; // --> read button every 20ms
+
+                playAudio(A_1, HALF); // button 1 = left - erst nach bestätigtem Druck (kein Glitch-Klick)
+
             } else {
                 button_1_state = BUTTON_INACTIVE; // nope, just a glitch
             }
@@ -73,12 +74,13 @@ ISR(TIMER2_COMPA_vect)
             debounce_timer_2 = TIME_50_MS; // 50ms
             button_2_state = BUTTON_PRESSED;
 
-            playAudio(A_2, HALF); // button 2 = right
-
         } else if (button_2_state == BUTTON_PRESSED) { // aka 50MS later ...
             if (val == LOW) {
                 button_2_state = BUTTON_HELD; // now, this counts
                 debounce_timer_2 = TIME_20_MS; // --> read button every 20ms while on hold
+
+                playAudio(A_2, HALF); // button 2 = right - erst nach bestätigtem Druck (kein Glitch-Klick)
+
             } else {
                 button_2_state = BUTTON_INACTIVE; // nope, just a glitch
             }
@@ -114,6 +116,14 @@ ISR(TIMER2_COMPA_vect)
     // Countdown
     if (countdown > 0)
         countdown--;
+
+    // Notendauer zeitgenau (alle 2ms) statt abhängig von der Hauptschleifen-Geschwindigkeit herunterzählen
+    if (audio_duration > 0) {
+        audio_duration--;
+        if (audio_duration == 0) {
+            playAudio(STOP, STOP);
+        }
+    }
 }
 
 // Helper functions

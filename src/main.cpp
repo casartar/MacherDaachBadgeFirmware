@@ -8,6 +8,7 @@
 #include "output_fill_matrix_spiral.h"
 // #include "output_square.h"
 #include "pong.h"
+#include "sequencer.h"
 #if !defined(__AVR_ATmega168P__)
 #include "snake.h"
 #endif
@@ -20,9 +21,9 @@
 
 // Output modes and their order
 #if defined(__AVR_ATmega168P__)
-#define NUM_OF_MODES 6
-#else
 #define NUM_OF_MODES 7
+#else
+#define NUM_OF_MODES 8
 #endif
 // Mode to display
 static uint8_t outputMode = 0;
@@ -32,6 +33,7 @@ void (*output_functions[NUM_OF_MODES])() {
     output_fill_matrix_spiral,
     output_fill_matrix_random,
     // output_square,
+    sequencer,
     pong,
 #if !defined(__AVR_ATmega168P__)
     snake,
@@ -46,6 +48,7 @@ void (*initializer_functions[NUM_OF_MODES])() {
     output_init_matrix_spiral,
     nop,
     // output_init_square,
+    sequencer_intro,
     pong_intro,
 #if !defined(__AVR_ATmega168P__)
     snake_intro,
@@ -168,8 +171,6 @@ void loop()
         // Do initializations for a new output mode here if necessary
         initializer_functions[outputMode]();
     }
-
-    updateAudio();
 
     // Call your output mode in this switch
     output_functions[outputMode]();

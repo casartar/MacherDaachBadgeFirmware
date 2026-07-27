@@ -1,7 +1,7 @@
 #include "audio.h"
 #include "main.h"
 
-unsigned long audio_duration = 0; // duration is decreased by 1 with each loop, 0 = audio stops
+volatile unsigned long audio_duration = 0; // Ticks bis Ton stoppt, wird in der TIMER2-ISR heruntergezählt
 
 // note frequencies (hertz)
 const int16_t notes[] PROGMEM = {
@@ -17,18 +17,15 @@ const int16_t notes[] PROGMEM = {
     2093, 2217, 2349, 2489, 2637, 2794, 2960, 3136, 3322, 3520, 3729, 3951
 };
 
-void updateAudio()
-{
-    if (audio_duration > 0) {
-        audio_duration--;
-        if (audio_duration == 0)
-            playAudio(STOP, STOP); // stop audio
-    }
-}
-
 #ifdef SOUNDBADGE
 void playAudio(int note_index, int note_length)
 {
+    // Register-Schreibzugriffe atomar machen: playAudio() wird sowohl aus der
+    // TIMER2-ISR (Tastenklick-Sound) als auch aus der Hauptschleife aufgerufen -
+    // ohne Schutz können sich beide Aufrufe verschränken und Ton/Dauer verfälschen.
+    uint8_t oldSREG = SREG;
+    cli();
+
     if (note_index == STOP) {
         // stop timer (stop audio completely or play pause)
         // Stop Timer1 clock by clearing CS bits (keeps PWM config)
@@ -43,9 +40,6 @@ void playAudio(int note_index, int note_length)
         int16_t frequency_hertz = (int16_t)pgm_read_word(&notes[note_index]);
         audio_duration = FULL_NOTE_DURATION / note_length;
 
-        // Start Timer1
-        TCCR1B = (1 << WGM13) | (1 << WGM12) | (1 << CS10); // No prescaler
-
         // Constrain frequency to reasonable range (avoiding division by zero)
         frequency_hertz = constrain(frequency_hertz, 50, 8000);
 
@@ -56,7 +50,18 @@ void playAudio(int note_index, int note_length)
 
         // Calculate OCR1A value based on duty cycle percentage
         OCR1A = (unsigned int)(((float)duty_cycle / 100.0) * ICR1);
+
+        // ICR1 ist im Fast-PWM-Modus nicht doppelt gepuffert: bliebe ein alter Zählerstand
+        // (von der vorherigen Note) stehen, der größer als der neue ICR1-Wert ist, müsste der
+        // Timer erst bis 0xFFFF überlaufen, bevor der neue TOP-Wert greift - hörbarer Aussetzer/
+        // falscher Ton. Zähler daher vor dem (Neu-)Start explizit zurücksetzen.
+        TCNT1 = 0;
+
+        // Start Timer1
+        TCCR1B = (1 << WGM13) | (1 << WGM12) | (1 << CS10); // No prescaler
     }
+
+    SREG = oldSREG;
 }
 #else
 void playAudio(int, int) { }
