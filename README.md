@@ -44,7 +44,7 @@ Ein kleiner 8-Schritt-Musiksequencer.
 - Während des Editierens werden die Tonhöhen **aller** Spalten gleichzeitig angezeigt, damit man das ganze Muster sieht.
 - **Auto-Play**: **Wird 3 Sekunden lang keine Taste gedrückt,** läuft der Cursor automatisch durch alle 8 Spalten (ein kompletter Durchlauf dauert 2 Sekunden) und spielt dabei die programmierten Töne ab. Während des Auto-Plays wird nur die gerade abgespielte Tonhöhe angezeigt.
 - Ein Tastendruck (egal welcher) beendet die automatische Wiedergabe sofort und führt die zugehörige Bearbeitungs-Aktion aus.
-- Das programmierte Muster wird dauerhaft im EEPROM des ATMega Chips gespeichert und bleibt auch nach Aus- und Wiedereinschalten des Badges erhalten.
+- Das programmierte Muster wird dauerhaft im EEPROM des ATMega Chips gespeichert und bleibt auch nach Aus- und Wiedereinschalten der Badge erhalten.
 
 ## 5. Pong
 
@@ -68,7 +68,7 @@ Das klassische Snake-Spiel auf der 8x8-Matrix.
 
 ## UART-Modi (nur per PC/Serial-Verbindung)
 
-Diese beiden Modi lassen sich **nicht** über die Taster erreichen, sondern nur, indem man über die serielle Schnittstelle (9600 Baud) Daten an das Badge sendet:
+Diese beiden Modi lassen sich **nicht** über die Taster erreichen, sondern nur, indem man über die serielle Schnittstelle (9600 Baud) Daten an die Badge sendet:
 
 - **Text senden, abgeschlossen mit Enter (`\r`)**: aktiviert den Lauftext-Modus über UART - der gesendete Text läuft über die Matrix, ähnlich wie im normalen Lauftext-Modus, aber live vom PC gesteuert.
 - **8 Byte Rohdaten senden, abgeschlossen mit Tab (`\t`)**: aktiviert den Grafik-Modus über UART - jedes der 8 gesendeten Bytes legt bitweise eine Zeile der Matrix fest.
@@ -104,7 +104,7 @@ Unter **Windows** ist diese Regel nicht nötig - dort braucht z.B. der USBasp gg
 
 # Firmware flashen (ISP)
 
-Das Badge wird über den 6-poligen ISP-Stecker programmiert, nicht per Bootloader/USB. Dafür wird ein externer ISP-Programmer benötigt. Diese Anleitung beschreibt die zwei gängigen Varianten: **USBasp** und **stk500v2** (z.B. "Arduino as ISP").
+Die Badge wird über den 6-poligen ISP-Stecker programmiert, nicht per Bootloader/USB. Dafür wird ein externer ISP-Programmer benötigt. Diese Anleitung beschreibt die zwei gängigen Varianten: **USBasp** und **stk500v2** (z.B. "Arduino as ISP").
 
 ## ISP-Anschluss
 
@@ -114,7 +114,7 @@ SCK   - 3  4 - MOSI
 RESET - 5  6 - GND
 ```
 
-Pin 1 ist am Stecker markiert. Liegt das Badge vor einem, ist Pin 1 oben rechts
+Pin 1 ist am Stecker markiert. Liegt die Badge vor einem, ist Pin 1 oben rechts
 
 Welcher Programmer aktiv verwendet wird, stellt man in `platformio.ini` über die Zeile `-cSTK500v2` bzw. `-cUSBasp` im Abschnitt `upload_flags` ein - jeweils die gewünschte Zeile aktivieren, die andere mit `;` auskommentieren.
 
@@ -122,15 +122,15 @@ Welcher Programmer aktiv verwendet wird, stellt man in `platformio.ini` über di
 
 ![](Pictures/Programmer-USBasp.jpg)
 
-**Wichtig:** Das Badge läuft mit nur **1 MHz** Taktrate (`board_build.f_cpu = 1000000L`). Die ISP-Taktrate (SCK) muss deutlich langsamer sein als der Zieltakt (Faustregel: SCK ≤ Zieltakt / 4, also ≤ 250 kHz). Viele USBasp-Adapter kommen ab Werk mit einer **veralteten Firmware**, die keine so langsame SCK-Rate unterstützt bzw. nicht automatisch herunterschaltet - die Programmierung schlägt dann mit Sync- oder Verify-Fehlern fehl.
+**Wichtig:** Die Badge läuft mit nur **1 MHz** Taktrate (`board_build.f_cpu = 1000000L`). Die ISP-Taktrate (SCK) muss deutlich langsamer sein als der Zieltakt (Faustregel: SCK ≤ Zieltakt / 4, also ≤ 250 kHz). Viele USBasp-Adapter kommen ab Werk mit einer **veralteten Firmware**, die keine so langsame SCK-Rate unterstützt bzw. nicht automatisch herunterschaltet - die Programmierung schlägt dann mit Sync- oder Verify-Fehlern fehl.
 
-**Vor dem ersten Einsatz am Badge:** den USBasp-Adapter selbst mit aktueller Firmware neu flashen (z.B. von https://www.fischl.de/usbasp/). Dafür wird ein zweiter, bereits funktionierender Programmer benötigt, da der USBasp sich nicht selbst flasht.
+**Vor dem ersten Einsatz an der Badge:** den USBasp-Adapter selbst mit aktueller Firmware neu flashen (z.B. von https://www.fischl.de/usbasp/). Dafür wird ein zweiter, bereits funktionierender Programmer benötigt, da der USBasp sich nicht selbst flasht.
 
 ### Ablauf
 
 1. USBasp mit aktueller Firmware versorgen (siehe oben).
 2. ISP-Kabel des USBasp am 6-poligen ISP-Port des Badges anschließen (Pin 1 beachten).
-3. Der USBasp versorgt das Badge in der Regel selbst mit 5V (Jumper JP2/JP3 auf dem USBasp, meist "Self-Powered"/5V aktiviert) - eine externe Spannungsversorgung ist normalerweise **nicht** nötig. Falls der USBasp nicht mit Strom versorgen soll, das Badge stattdessen wie bei Variante B extern versorgen.
+3. Der USBasp versorgt die Badge in der Regel selbst mit 5V (Jumper JP2/JP3 auf dem USBasp, meist "Self-Powered"/5V aktiviert) - eine externe Spannungsversorgung ist normalerweise **nicht** nötig. Falls der USBasp nicht mit Strom versorgen soll, die Badge stattdessen wie bei Variante B extern versorgen.
 4. In `platformio.ini` im `[env]`-Abschnitt sicherstellen, dass `-cUSBasp` aktiv ist:
    ```ini
    upload_flags =
@@ -150,15 +150,15 @@ Welcher Programmer aktiv verwendet wird, stellt man in `platformio.ini` über di
 
 Das ist die aktuell in `platformio.ini` voreingestellte Variante (`-cstk500v2`).
 
-**Wichtig:** Ein stk500v2-Programmer versorgt das Badge im Gegensatz zum USBasp **nicht** mit Strom. Das Badge braucht während des Flashens eine **externe 5V-Versorgung** an den VCC/GND-Pins.
+**Wichtig:** Ein stk500v2-Programmer versorgt die Badge im Gegensatz zum USBasp **nicht** mit Strom. Die Badge braucht während des Flashens eine **externe 5V-Versorgung** an den VCC/GND-Pins.
 
-**Vor dem Anschließen der externen Versorgung:** den Schiebeschalter am Badge von `AN` auf `AUS` umstecken, oder die Knopfzelle entnehmen - sonst kann die Batterie beschädigt werden bzw. rückgespeist werden.
+**Vor dem Anschließen der externen Versorgung:** den Schiebeschalter an der Badge von `AN` auf `AUS` umstecken, oder die Knopfzelle entnehmen - sonst kann die Batterie beschädigt werden bzw. rückgespeist werden.
 
 ### Ablauf
 
-1. Schiebeschalter am Badge von `AN` auf `AUS` umstellen (oder Knopfzelle entfernen).
-2. Externe 5V-Versorgung an das Badge anschließen (noch nicht einschalten).
-3. ISP-Kabel des stk500v2-Programmers am 6-poligen ISP-Port des Badges anschließen (Pin 1 beachten).
+1. Schiebeschalter an der Badge von `AN` auf `AUS` umstellen (oder Knopfzelle entfernen).
+2. Externe 5V-Versorgung an die Badge anschließen (noch nicht einschalten).
+3. ISP-Kabel des stk500v2-Programmers am 6-poligen ISP-Port der Badge anschließen (Pin 1 beachten).
 4. Externe Spannungsversorgung einschalten.
 5. In `platformio.ini` im `[env]`-Abschnitt sicherstellen, dass `-cstk500v2` aktiv ist (Standardeinstellung):
    ```ini
@@ -181,11 +181,11 @@ Bei einem fabrikneuen ATmega-Chip müssen einmalig die Fuses gesetzt werden (u.a
 pio run --target fuses
 ```
 
-Das ist nur beim allerersten Programmieren eines neuen Controllers nötig, nicht bei jedem normalen Firmware-Update. Und normalerweise wurde Dein Badge ja schon vor Ort auf dem Macherdaach programmiert.
+Das ist nur beim allerersten Programmieren eines neuen Controllers nötig, nicht bei jedem normalen Firmware-Update. Und normalerweise wurde Deine Badge ja schon vor Ort auf dem Macherdaach programmiert.
 
 # Variante C: Arduino Uno als ISP-Programmer
 
-Hat man keinen USBasp oder stk500v2-Programmer zur Hand, lässt sich ein handelsüblicher Arduino Uno als ISP-Programmer verwenden ("Arduino as ISP"). Der Uno übernimmt technisch das gleiche Protokoll wie sein eigener Bootloader (`stk500v1`) und kann das Badge direkt über seine 5V/GND-Pins mit Strom versorgen.
+Hat man keinen USBasp oder stk500v2-Programmer zur Hand, lässt sich ein handelsüblicher Arduino Uno als ISP-Programmer verwenden ("Arduino as ISP"). Der Uno übernimmt technisch das gleiche Protokoll wie sein eigener Bootloader (`stk500v1`) und kann die Badge direkt über seine 5V/GND-Pins mit Strom versorgen.
 
 ## 1. Uno als Programmer vorbereiten (einmalig)
 
@@ -206,7 +206,7 @@ Hat man keinen USBasp oder stk500v2-Programmer zur Hand, lässt sich ein handels
 | 5             | Reset    | D10               |
 | 6             | GND      | GND               |
 
-Der Uno versorgt das Badge dabei direkt mit 5V - wie bei Variante B (stk500v2) vorher den Schiebeschalter am Badge von `AN` auf `AUS` stecken bzw. die Knopfzelle entnehmen, bevor die Verbindung hergestellt wird.
+Der Uno versorgt die Badge dabei direkt mit 5V - wie bei Variante B (stk500v2) vorher den Schiebeschalter an der Badge von `AN` auf `AUS` stecken bzw. die Knopfzelle entnehmen, bevor die Verbindung hergestellt wird.
 
 ## 3. Mit PlatformIO flashen
 
@@ -231,5 +231,5 @@ Anschließend wie gewohnt flashen:
 pio run --target upload
 ```
 
-Nach dem Flashen die externe Versorgung/den Uno trennen und den Schiebeschalter am Badge wieder auf `AN` stellen bzw. die Knopfzelle wieder einsetzen.
+Nach dem Flashen die externe Versorgung/den Uno trennen und den Schiebeschalter aan der Badge wieder auf `AN` stellen bzw. die Knopfzelle wieder einsetzen.
 
