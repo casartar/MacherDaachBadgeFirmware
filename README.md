@@ -1,15 +1,15 @@
 ![](Pictures/Badge-2026.jpg)
 
-# Bedienung des MacherDaach-Badge
+# Bedienung der MacherDaach-Badge
 
-Das Badge hat zwei Taster:
+Die Badge hat zwei Taster:
 
 - **Linker Taster** (SW1)
 - **Rechter Taster** (SW2)
 
 ## Moduswechsel
 
-Um vom aktuellen Modus zum nächsten zu wechseln, **beide Taster gleichzeitig für 2 Sekunden gedrückt halten**. Die Anzeige wird kurz gelöscht und der nächste Modus startet.
+Um vom aktuellen Modus zum nächsten zu wechseln, **beide Taster gleichzeitig für 2 Sekunden gedrückt halten**.
 
 Die Modi werden in dieser Reihenfolge durchlaufen (danach beginnt es wieder von vorne):
 
@@ -20,11 +20,11 @@ Die Modi werden in dieser Reihenfolge durchlaufen (danach beginnt es wieder von 
 5. Pong
 6. Snake
 
-Die beiden UART-Modi (siehe unten) gehören nicht zu diesem Umschalt-Zyklus, man gelangt aber jederzeit mit dem 2-Sekunden-Tastendruck zurück zum Lauftext-Modus, egal in welchem Modus man sich gerade befindet.
+Die beiden UART-Modi (siehe unten) gehören nicht zu diesem Umschalt-Zyklus, man gelangt aber jederzeit mit dem 2-Sekunden-Tastendruck zurück zum Lauftext-Modus, egal in welchem UART-Modus man sich gerade befindet.
 
 ## 1. Lauftext
 
-Zeigt den einprogrammierten Text durchlaufend an. Reine Anzeige ohne Tasten-Bedienung.
+Zeigt den einprogrammierten Text durchlaufend an, reine Anzeige ohne Tasten-Bedienung.
 
 ## 2. Spirale
 
@@ -32,19 +32,19 @@ Automatische Animation: die Matrix wird spiralförmig gefüllt und wieder geleer
 
 ## 3. Zufallsmuster
 
-Füllt die Matrix laufend mit zufälligen Pixelmustern und spielt dazu gelegentlich einen zufälligen Ton. Keine Tasten-Bedienung.
+Füllt die Matrix laufend mit zufälligen Pixelmustern und spielt dazu zufällige Töne. Keine Tasten-Bedienung.
 
 ## 4. Sequencer
 
 Ein kleiner 8-Schritt-Musiksequencer.
 
-- Die unterste LED-Zeile zeigt den **Spalten-Cursor** (aktiver Schritt, 0-7).
+- Die unterste LED-Zeile zeigt den **Spalten-Cursor** (aktiver Schritt, Spalte 1-8).
 - **Rechter Taster** (kurz drücken): Cursor eine Spalte nach rechts bewegen. Nach Spalte 8 geht es wieder bei Spalte 1 los.
-- **Linker Taster** (kurz drücken): Tonhöhe der aktuell gewählten Spalte weiterschalten: aus → C → D → E → F → G → A → H → aus → ... Die Tonhöhe wird als zweite LED in der jeweiligen Zeile angezeigt (2. Zeile von unten = C, oberste Zeile = H) und beim Umschalten kurz angespielt.
+- **Linker Taster** (kurz drücken): Tonhöhe der aktuell gewählten Spalte weiterschalten: AUS → C → D → E → F → G → A → H → AUS → ... Die Tonhöhe wird als zweite LED in der jeweiligen Zeile angezeigt (2. Zeile von unten = C, oberste Zeile = H) und beim Umschalten kurz angespielt.
 - Während des Editierens werden die Tonhöhen **aller** Spalten gleichzeitig angezeigt, damit man das ganze Muster sieht.
-- **Auto-Play**: Wird 3 Sekunden lang keine Taste gedrückt, läuft der Cursor automatisch durch alle 8 Spalten (ein kompletter Durchlauf dauert 2 Sekunden) und spielt dabei die programmierten Töne ab. Während des Auto-Plays wird nur die gerade abgespielte Tonhöhe angezeigt.
+- **Auto-Play**: **Wird 3 Sekunden lang keine Taste gedrückt,** läuft der Cursor automatisch durch alle 8 Spalten (ein kompletter Durchlauf dauert 2 Sekunden) und spielt dabei die programmierten Töne ab. Während des Auto-Plays wird nur die gerade abgespielte Tonhöhe angezeigt.
 - Ein Tastendruck (egal welcher) beendet die automatische Wiedergabe sofort und führt die zugehörige Bearbeitungs-Aktion aus.
-- Das programmierte Muster wird dauerhaft gespeichert (EEPROM) und bleibt auch nach Aus- und Wiedereinschalten des Badges erhalten.
+- Das programmierte Muster wird dauerhaft im EEPROM des ATMega Chips gespeichert und bleibt auch nach Aus- und Wiedereinschalten des Badges erhalten.
 
 ## 5. Pong
 
@@ -65,7 +65,6 @@ Das klassische Snake-Spiel auf der 8x8-Matrix.
 - **Linker Taster**: nach links abbiegen (relativ zur aktuellen Bewegungsrichtung).
 - **Rechter Taster**: nach rechts abbiegen.
 - Die Schlange frisst die zufällig erscheinende "Maus" (einzelner Punkt) und wird dabei länger. Am Rand der Matrix erscheint sie auf der gegenüberliegenden Seite wieder (kein Wandkontakt = Game Over). Es gibt keine Kollisionserkennung mit dem eigenen Körper, aber eine sehr alte, lange nicht gefütterte Schlange verliert mit der Zeit Segmente am Schwanzende.
-- Versteckte Zugabe: hält man kurz beide Taster gleichzeitig und lässt dann einen los, während man den anderen weiter gedrückt hält, wird die Einführungsanimation erneut abgespielt.
 
 ## UART-Modi (nur per PC/Serial-Verbindung)
 
@@ -82,11 +81,11 @@ Aus beiden UART-Modi kommt man mit dem normalen 2-Sekunden-Tastendruck (beide Ta
 
 1. Visual Studio Code herunterladen und installieren: https://code.visualstudio.com/
 2. In VS Code die Extension **"PlatformIO IDE"** installieren (Extensions-Ansicht öffnen, nach "PlatformIO IDE" suchen, installieren). PlatformIO richtet sich dabei automatisch samt aller benötigten Tools ein (u.a. `avrdude`, Compiler für die AVR-Plattform).
-3. Dieses Projektverzeichnis in VS Code öffnen (Datei -> Ordner öffnen). PlatformIO erkennt die vorhandene `platformio.ini` automatisch und richtet die passende Build-Umgebung ein.
+3. Dieses Projektverzeichnis (in dem dieses README liegt) in VS Code öffnen (Datei -> Ordner öffnen). PlatformIO erkennt die vorhandene `platformio.ini` automatisch und richtet die passende Build-Umgebung ein.
 
 ## USB-Zugriff auf den Programmer einrichten (Linux)
 
-Unter Linux braucht der eigene Benutzer normalerweise eine udev-Regel, damit der ISP-Programmer ohne root-Rechte angesprochen werden kann. Die Datei `99-avrispmkII.rules` im Projektverzeichnis enthält die passende Regel (Vendor/Product ID `03eb:2104`).
+Unter **Linux** braucht der eigene Benutzer normalerweise eine udev-Regel, damit der ISP-Programmer ohne root-Rechte angesprochen werden kann. Die Datei `99-avrispmkII.rules` im Projektverzeichnis enthält die passende Regel (Vendor/Product ID `03eb:2104`).
 
 **Einbau:**
 
@@ -101,7 +100,7 @@ Unter Linux braucht der eigene Benutzer normalerweise eine udev-Regel, damit der
    ```
 3. Programmer einmal aus- und wieder einstecken.
 
-Unter Windows ist diese Regel nicht nötig - dort braucht z.B. der USBasp ggf. stattdessen einen passenden Treiber (WinUSB/libusbK), den man über das Tool [Zadig](https://zadig.akeo.ie/) installieren kann, falls Windows den Programmer nicht automatisch erkennt. Unter macOS ist in der Regel keine zusätzliche Einrichtung nötig.
+Unter **Windows** ist diese Regel nicht nötig - dort braucht z.B. der USBasp ggf. stattdessen einen passenden Treiber (WinUSB/libusbK), den man über das Tool [Zadig](https://zadig.akeo.ie/) installieren kann, falls Windows den Programmer nicht automatisch erkennt. Unter **macOS** ist in der Regel keine zusätzliche Einrichtung nötig.
 
 # Firmware flashen (ISP)
 
@@ -129,7 +128,7 @@ Welcher Programmer aktiv verwendet wird, stellt man in `platformio.ini` über di
 
 ### Ablauf
 
-1. USBasp mit aktueller Firmware bereitlegen (siehe oben).
+1. USBasp mit aktueller Firmware versorgen (siehe oben).
 2. ISP-Kabel des USBasp am 6-poligen ISP-Port des Badges anschließen (Pin 1 beachten).
 3. Der USBasp versorgt das Badge in der Regel selbst mit 5V (Jumper JP2/JP3 auf dem USBasp, meist "Self-Powered"/5V aktiviert) - eine externe Spannungsversorgung ist normalerweise **nicht** nötig. Falls der USBasp nicht mit Strom versorgen soll, das Badge stattdessen wie bei Variante B extern versorgen.
 4. In `platformio.ini` im `[env]`-Abschnitt sicherstellen, dass `-cUSBasp` aktiv ist:
@@ -172,7 +171,7 @@ Das ist die aktuell in `platformio.ini` voreingestellte Variante (`-cstk500v2`).
    ```
 6. `upload_port` prüfen: `upload_port = usb` funktioniert nur, wenn der Programmer sich als natives USB-Gerät meldet. Meldet sich der stk500v2-Programmer stattdessen als serieller COM-Port (z.B. bei "Arduino as ISP" über den normalen USB-Seriell-Chip des Arduino), `upload_port` in `platformio.ini` auf den tatsächlichen Port ändern (z.B. `COM5` unter Windows), oder beim Upload überschreiben: `pio run --target upload --upload-port COM5`.
 7. Flashen: `pio run --target upload`.
-8. Nach dem Flashen: externe Versorgung trennen, Jumper wieder auf `BAT` zurückstecken bzw. Knopfzelle wieder einsetzen.
+8. Nach dem Flashen: externe Versorgung trennen, Schiebeschalter wieder auf `AN` stellen bzw. Knopfzelle wieder einsetzen.
 
 ## Fuses setzen (nur einmalig bei einem neuen/unbeschriebenen Chip)
 
@@ -182,7 +181,7 @@ Bei einem fabrikneuen ATmega-Chip müssen einmalig die Fuses gesetzt werden (u.a
 pio run --target fuses
 ```
 
-Das ist nur beim allerersten Programmieren eines neuen Controllers nötig, nicht bei jedem normalen Firmware-Update.
+Das ist nur beim allerersten Programmieren eines neuen Controllers nötig, nicht bei jedem normalen Firmware-Update. Und normalerweise wurde Dein Badge ja schon vor Ort auf dem Macherdaach programmiert.
 
 # Variante C: Arduino Uno als ISP-Programmer
 
@@ -207,7 +206,7 @@ Hat man keinen USBasp oder stk500v2-Programmer zur Hand, lässt sich ein handels
 | 5             | Reset    | D10               |
 | 6             | GND      | GND               |
 
-Der Uno versorgt das Badge dabei direkt mit 5V - wie bei Variante B (stk500v2) vorher den Jumper am Badge von `BAT` auf `EXT` stecken bzw. die Knopfzelle entnehmen, bevor die Verbindung hergestellt wird.
+Der Uno versorgt das Badge dabei direkt mit 5V - wie bei Variante B (stk500v2) vorher den Schiebeschalter am Badge von `AN` auf `AUS` stecken bzw. die Knopfzelle entnehmen, bevor die Verbindung hergestellt wird.
 
 ## 3. Mit PlatformIO flashen
 
@@ -232,5 +231,5 @@ Anschließend wie gewohnt flashen:
 pio run --target upload
 ```
 
-Nach dem Flashen die externe Versorgung/den Uno trennen und den Jumper am Badge wieder auf `BAT` zurückstecken bzw. die Knopfzelle wieder einsetzen.
+Nach dem Flashen die externe Versorgung/den Uno trennen und den Schiebeschalter am Badge wieder auf `AN` stellen bzw. die Knopfzelle wieder einsetzen.
 
