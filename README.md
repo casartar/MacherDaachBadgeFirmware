@@ -4,8 +4,8 @@
 
 Die Badge hat zwei Taster:
 
-- **Linker Taster** (SW1)
-- **Rechter Taster** (SW2)
+- **Linker Taster** (SW2)
+- **Rechter Taster** (SW3)
 
 ## Moduswechsel
 
@@ -40,10 +40,10 @@ Ein kleiner 8-Schritt-Musiksequencer.
 
 - Die unterste LED-Zeile zeigt den **Spalten-Cursor** (aktiver Schritt, Spalte 1-8).
 - **Rechter Taster** (kurz drücken): Cursor eine Spalte nach rechts bewegen. Nach Spalte 8 geht es wieder bei Spalte 1 los.
-- **Linker Taster** (kurz drücken): Tonhöhe der aktuell gewählten Spalte weiterschalten: AUS → C → D → E → F → G → A → H → AUS → ... Die Tonhöhe wird als zweite LED in der jeweiligen Zeile angezeigt (2. Zeile von unten = C, oberste Zeile = H) und beim Umschalten kurz angespielt.
+- **Linker Taster** (kurz drücken): Tonhöhe der aktuell gewählten Spalte weiterschalten: AUS → C → D → E → F → G → A → H → AUS → ... Die Tonhöhe wird als zweite LED in der jeweiligen Zeile angezeigt (2. Zeile von unten = C, oberste Zeile = H) und beim Zeilen-Weiterschalten abgespielt.
 - Während des Editierens werden die Tonhöhen **aller** Spalten gleichzeitig angezeigt, damit man das ganze Muster sieht.
 - **Auto-Play**: **Wird 3 Sekunden lang keine Taste gedrückt,** läuft der Cursor automatisch durch alle 8 Spalten (ein kompletter Durchlauf dauert 2 Sekunden) und spielt dabei die programmierten Töne ab. Während des Auto-Plays wird nur die gerade abgespielte Tonhöhe angezeigt.
-- Ein Tastendruck (egal welcher) beendet die automatische Wiedergabe sofort und führt die zugehörige Bearbeitungs-Aktion aus.
+- Ein Tastendruck (egal welcher) beendet die automatische Wiedergabe sofort und führt die zugehörige Editieren-Aktion aus.
 - Das programmierte Muster wird dauerhaft im EEPROM des ATMega Chips gespeichert und bleibt auch nach Aus- und Wiedereinschalten der Badge erhalten.
 
 ## 5. Pong
@@ -61,10 +61,10 @@ Ein einfaches Pong-Spiel, bei dem sich der Ball nur horizontal über die Matrix 
 
 Das klassische Snake-Spiel auf der 8x8-Matrix.
 
-- Beim Start läuft eine kurze Demo-Animation (Beispiel-Schlange plus "Snake"-Schriftzug), bevor das eigentliche Spiel beginnt.
+- Beim Start läuft eine kurze Einführungsanimation mit Sound.
 - **Linker Taster**: nach links abbiegen (relativ zur aktuellen Bewegungsrichtung).
 - **Rechter Taster**: nach rechts abbiegen.
-- Die Schlange frisst die zufällig erscheinende "Maus" (einzelner Punkt) und wird dabei länger. Am Rand der Matrix erscheint sie auf der gegenüberliegenden Seite wieder (kein Wandkontakt = Game Over). Es gibt keine Kollisionserkennung mit dem eigenen Körper, aber eine sehr alte, lange nicht gefütterte Schlange verliert mit der Zeit Segmente am Schwanzende.
+- Die Schlange frisst die zufällig erscheinende "Maus" (einzelner Punkt) und wird dabei länger. Am Rand der Matrix erscheint sie auf der gegenüberliegenden Seite wieder (kein Game Over bei Wandkontakt). Es gibt keine Kollisionserkennung mit dem eigenen Körper, aber eine sehr alte, lange nicht gefütterte Schlange verliert mit der Zeit Segmente am Schwanzende.
 
 ## UART-Modi (nur per PC/Serial-Verbindung)
 
