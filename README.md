@@ -1,6 +1,6 @@
 ![](Pictures/Badge-2026.jpg)
 
-# Bedienung der MacherDaach-Badge
+# Bedienung der Macherdaach-Badge
 
 Die Badge hat zwei Taster:
 
@@ -114,7 +114,7 @@ SCK   - 3  4 - MOSI
 RESET - 5  6 - GND
 ```
 
-Pin 1 ist am Stecker markiert. Liegt die Badge vor einem, ist Pin 1 oben rechts
+Pin 1 ist am Stecker markiert. Liegt die Badge vor einem, ist Pin 1 oben rechts.
 
 Welcher Programmer aktiv verwendet wird, stellt man in `platformio.ini` über die Zeile `-cSTK500v2` bzw. `-cUSBasp` im Abschnitt `upload_flags` ein - jeweils die gewünschte Zeile aktivieren, die andere mit `;` auskommentieren.
 
@@ -130,7 +130,7 @@ Welcher Programmer aktiv verwendet wird, stellt man in `platformio.ini` über di
 
 1. USBasp mit aktueller Firmware versorgen (siehe oben).
 2. ISP-Kabel des USBasp am 6-poligen ISP-Port des Badges anschließen (Pin 1 beachten).
-3. Der USBasp versorgt die Badge in der Regel selbst mit 5V (Jumper JP2/JP3 auf dem USBasp, meist "Self-Powered"/5V aktiviert) - eine externe Spannungsversorgung ist normalerweise **nicht** nötig. Falls der USBasp nicht mit Strom versorgen soll, die Badge stattdessen wie bei Variante B extern versorgen.
+3. Der USBasp versorgt die Badge in der Regel selbst mit 5V (Jumper JP2/JP3 auf dem USBasp, meist "Self-Powered"/5V aktiviert) - eine externe Spannungsversorgung ist normalerweise **nicht** nötig. Falls der USBasp die Badge nicht mit Strom versorgen soll, die Badge stattdessen wie bei Variante B extern versorgen.
 4. In `platformio.ini` im `[env]`-Abschnitt sicherstellen, dass `-cUSBasp` aktiv ist:
    ```ini
    upload_flags =
@@ -231,5 +231,5 @@ Anschließend wie gewohnt flashen:
 pio run --target upload
 ```
 
-Nach dem Flashen die externe Versorgung/den Uno trennen und den Schiebeschalter aan der Badge wieder auf `AN` stellen bzw. die Knopfzelle wieder einsetzen.
+Nach dem Flashen die externe Versorgung/den Uno trennen und den Schiebeschalter an der Badge wieder auf `AN` stellen bzw. die Knopfzelle wieder einsetzen.
 
