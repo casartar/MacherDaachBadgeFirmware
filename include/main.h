@@ -3,7 +3,7 @@
 #include <Arduino.h>
 
 // the text to display in OutputShiftString-Mode:
-#define TEXT "' MacherDaach 2026"
+#define TEXT "' Macherdaach 2026"
 #define UART_SHIFT_SPEED_MS 40
 #define TEXT_SHIFT_SPEED_MS 40
 

@@ -12,6 +12,10 @@ static const int16_t PITCH_NOTES[7] = { C_2, D_2, E_2, F_2, G_2, A_2, H_2 };
 #define SEQUENCER_STEP_TIME (TIME_1_S / 4) // 2000ms / 8 columns = 250ms per step
 #define SEQUENCER_EEPROM_BASE_ADDR 0 // 8 bytes (one per column) starting at this EEPROM address
 
+// Default pattern used as long as the EEPROM is still in its unwritten factory state (0xFF):
+// Tetris theme (Korobeiniki) opening riff - E H C D C H A, column 8 off.
+static const uint8_t DEFAULT_PATTERN[8] = { 3, 7, 1, 2, 1, 7, 6, 0 };
+
 static bool auto_playing = false;
 static bool needs_redraw = true; // only redraw when the LED state actually changes (avoids flicker)
 static bool waiting_for_release = true; // after a mode switch, wait for both buttons to be released first
@@ -19,16 +23,16 @@ static uint8_t column_pitch[8]; // pitch per column, 0 = off, 1..7 = row/note - 
 
 void sequencer_intro()
 {
-    auto_playing = false;
-    countdown = SEQUENCER_IDLE_TIMEOUT;
+    auto_playing = true; // start the mode directly in auto-play instead of edit mode
+    countdown = SEQUENCER_STEP_TIME;
     needs_redraw = true;
     waiting_for_release = true;
 
     for (uint8_t c = 0; c < 8; c++) {
         column_pitch[c] = EEPROM.read(SEQUENCER_EEPROM_BASE_ADDR + c);
         if (column_pitch[c] > 7) {
-            // invalid/unwritten EEPROM content (e.g. 0xFF in factory state)
-            column_pitch[c] = 0;
+            // invalid/unwritten EEPROM content (e.g. 0xFF in factory state) -> default pattern
+            column_pitch[c] = DEFAULT_PATTERN[c];
         }
     }
 }
@@ -46,7 +50,7 @@ void sequencer()
         // wrongly count as the first edit action).
         if (button_1_state == BUTTON_INACTIVE && button_2_state == BUTTON_INACTIVE) {
             waiting_for_release = false;
-            countdown = SEQUENCER_IDLE_TIMEOUT;
+            countdown = auto_playing ? SEQUENCER_STEP_TIME : SEQUENCER_IDLE_TIMEOUT;
         }
     } else {
         bool button_pressed = false;
