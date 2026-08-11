@@ -102,6 +102,23 @@ Unter **Linux** braucht der eigene Benutzer normalerweise eine udev-Regel, damit
 
 Unter **Windows** ist diese Regel nicht nötig - dort braucht z.B. der USBasp ggf. stattdessen einen passenden Treiber (WinUSB/libusbK), den man über das Tool [Zadig](https://zadig.akeo.ie/) installieren kann, falls Windows den Programmer nicht automatisch erkennt. Unter **macOS** ist in der Regel keine zusätzliche Einrichtung nötig.
 
+## Badge Prozessor- und Board-Variante einstellen
+
+Die Macherdaach-Badge gibt es in verschiedenen Ausführungen über die Jahre. Alle Ausführungen können mit diesem Code geflashed werden, vorher müssen dafür aber die richtigen Einstellungen in der Datei `platformio.ini` vergenommen werden.
+
+**Für die 2026er Badge muss nichts geändert werden.**
+
+Falls eine ältere Badge geflashed werden soll, die noch keinen Buzzer zur Tonausgabe hat, muss man die Zeile  `build_flags = -D SOUNDBADGE` auskommentieren, also:
+`;build_flags = -D SOUNDBADGE`
+
+Und dann kommt es auf den Mikroprozessor-Chip auf der Badge an: Dieser hat einen Aufdruck mit der genauen Typ-Bezeichnung. Es ist eine dieser 4 Bezeichnungen:
+- ATmega328P
+- ATmega328
+- ATmega168P
+- ATmega168A
+
+Diese Bezeichnung muss im Abschnitt `[platformio]` bei `default_envs = ATmega328P` eingetragen werden. PlatformIO braucht dann ein paar Sekunden, um das Projekt zu aktualisieren, danach kann man dann die Badge flashen:
+
 # Firmware flashen (ISP)
 
 Die Badge wird über den 6-poligen ISP-Stecker programmiert, nicht per Bootloader/USB. Dafür wird ein externer ISP-Programmer benötigt. Diese Anleitung beschreibt die zwei gängigen Varianten: **USBasp** und **stk500v2** (z.B. "Arduino as ISP").
@@ -152,7 +169,7 @@ Das ist die aktuell in `platformio.ini` voreingestellte Variante (`-cstk500v2`).
 
 **Wichtig:** Ein stk500v2-Programmer versorgt die Badge im Gegensatz zum USBasp **nicht** mit Strom. Die Badge braucht während des Flashens eine **externe 5V-Versorgung** an den VCC/GND-Pins.
 
-**Vor dem Anschließen der externen Versorgung:** den Schiebeschalter an der Badge von `AN` auf `AUS` umstecken, oder die Knopfzelle entnehmen - sonst kann die Batterie beschädigt werden bzw. rückgespeist werden.
+**Vor dem Anschließen der externen Versorgung:** den Schiebeschalter an der Badge von `AN` auf `AUS` umstellen, oder die Knopfzelle entnehmen - sonst kann die Batterie beschädigt werden bzw. rückgespeist werden.
 
 ### Ablauf
 
@@ -206,7 +223,7 @@ Hat man keinen USBasp oder stk500v2-Programmer zur Hand, lässt sich ein handels
 | 5             | Reset    | D10               |
 | 6             | GND      | GND               |
 
-Der Uno versorgt die Badge dabei direkt mit 5V - wie bei Variante B (stk500v2) vorher den Schiebeschalter an der Badge von `AN` auf `AUS` stecken bzw. die Knopfzelle entnehmen, bevor die Verbindung hergestellt wird.
+Der Uno versorgt die Badge dabei direkt mit 5V - wie bei Variante B (stk500v2) vorher den Schiebeschalter an der Badge von `AN` auf `AUS` stellen bzw. die Knopfzelle entnehmen, bevor die Verbindung hergestellt wird.
 
 ## 3. Mit PlatformIO flashen
 
