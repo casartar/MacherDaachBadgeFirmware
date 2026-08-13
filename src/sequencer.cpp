@@ -1,4 +1,9 @@
 #include "sequencer.h"
+
+// The sequencer plays back tones, so it only makes sense (and only compiles) on badges
+// that actually have a buzzer for audio output.
+#ifdef SOUNDBADGE
+
 #include "audio.h"
 #include "display.h"
 #include "main.h"
@@ -127,3 +132,5 @@ void sequencer()
         }
     }
 }
+
+#endif // SOUNDBADGE

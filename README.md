@@ -16,7 +16,7 @@ Die Modi werden in dieser Reihenfolge durchlaufen (danach beginnt es wieder von 
 1. Lauftext
 2. Spirale
 3. Zufallsmuster
-4. Sequencer
+4. Sequencer (nur bei Badges mit einem Buzzer)
 5. Pong
 6. Snake
 
@@ -34,7 +34,7 @@ Automatische Animation: die Matrix wird spiralförmig gefüllt und wieder geleer
 
 Füllt die Matrix laufend mit zufälligen Pixelmustern und spielt dazu zufällige Töne. Keine Tasten-Bedienung.
 
-## 4. Sequencer
+## 4. Sequencer (nur wenn die Badge einen Buzzer hat)
 
 Ein kleiner 8-Schritt-Musiksequencer.
 
