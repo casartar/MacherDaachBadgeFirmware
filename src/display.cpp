@@ -40,12 +40,13 @@ ISR(TIMER2_COMPA_vect)
             debounce_timer_1 = TIME_50_MS; // 50ms
             button_1_state = BUTTON_PRESSED;
 
-            playAudio(A_1, HALF); // button 1 = left
-
         } else if (button_1_state == BUTTON_PRESSED) { // aka 50MS later ...
             if (val == LOW) {
                 button_1_state = BUTTON_HELD; // now, this counts
                 debounce_timer_1 = TIME_20_MS; // --> read button every 20ms
+
+                playAudio(A_1, HALF); // button 1 = left - only after a confirmed press (no glitch click)
+
             } else {
                 button_1_state = BUTTON_INACTIVE; // nope, just a glitch
             }
@@ -73,12 +74,13 @@ ISR(TIMER2_COMPA_vect)
             debounce_timer_2 = TIME_50_MS; // 50ms
             button_2_state = BUTTON_PRESSED;
 
-            playAudio(A_2, HALF); // button 2 = right
-
         } else if (button_2_state == BUTTON_PRESSED) { // aka 50MS later ...
             if (val == LOW) {
                 button_2_state = BUTTON_HELD; // now, this counts
                 debounce_timer_2 = TIME_20_MS; // --> read button every 20ms while on hold
+
+                playAudio(A_2, HALF); // button 2 = right - only after a confirmed press (no glitch click)
+
             } else {
                 button_2_state = BUTTON_INACTIVE; // nope, just a glitch
             }
@@ -114,6 +116,14 @@ ISR(TIMER2_COMPA_vect)
     // Countdown
     if (countdown > 0)
         countdown--;
+
+    // Decrement note duration precisely (every 2ms) instead of depending on main-loop speed
+    if (audio_duration > 0) {
+        audio_duration--;
+        if (audio_duration == 0) {
+            playAudio(STOP, STOP);
+        }
+    }
 }
 
 // Helper functions
@@ -137,7 +147,7 @@ void matrixSetPixel(byte x, byte y, bool value)
 
 bool matrixGetPixel(byte x, byte y)
 {
-    return bitRead(matrix[y], x);
+    return bitRead(matrix[x], y);
 }
 
 void matrixShiftUp()

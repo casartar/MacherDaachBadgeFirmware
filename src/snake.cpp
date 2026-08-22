@@ -169,7 +169,7 @@ void snake()
     }
 
     if (countdown == 0) { // showtime!
-        // snake ist getting older
+        // snake is getting older
         snake_age += 1;
 
         // move the snake

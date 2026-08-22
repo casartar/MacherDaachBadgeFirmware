@@ -1,3 +1,5 @@
+#ifndef DISPLAY_H
+#define DISPLAY_H
 #include <Arduino.h>
 
 void display();
@@ -7,3 +9,5 @@ void displayCharacterOffset(const byte* image, int8_t x, int8_t y);
 void clear_matrix_immediately_without_reset();
 void displayCharacter(const byte* image);
 void matrixShiftLeft(uint8_t newColumn);
+
+#endif

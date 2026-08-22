@@ -8,6 +8,9 @@
 #include "output_fill_matrix_spiral.h"
 // #include "output_square.h"
 #include "pong.h"
+#ifdef SOUNDBADGE
+#include "sequencer.h"
+#endif
 #if !defined(__AVR_ATmega168P__)
 #include "snake.h"
 #endif
@@ -19,8 +22,12 @@
  */
 
 // Output modes and their order
-#if defined(__AVR_ATmega168P__)
+#if defined(__AVR_ATmega168P__) && defined(SOUNDBADGE)
+#define NUM_OF_MODES 7
+#elif defined(__AVR_ATmega168P__) && !defined(SOUNDBADGE)
 #define NUM_OF_MODES 6
+#elif !defined(__AVR_ATmega168P__) && defined(SOUNDBADGE)
+#define NUM_OF_MODES 8
 #else
 #define NUM_OF_MODES 7
 #endif
@@ -32,6 +39,9 @@ void (*output_functions[NUM_OF_MODES])() {
     output_fill_matrix_spiral,
     output_fill_matrix_random,
     // output_square,
+#ifdef SOUNDBADGE
+    sequencer,
+#endif
     pong,
 #if !defined(__AVR_ATmega168P__)
     snake,
@@ -46,6 +56,9 @@ void (*initializer_functions[NUM_OF_MODES])() {
     output_init_matrix_spiral,
     nop,
     // output_init_square,
+#ifdef SOUNDBADGE
+    sequencer_intro,
+#endif
     pong_intro,
 #if !defined(__AVR_ATmega168P__)
     snake_intro,
@@ -158,7 +171,7 @@ void loop()
         // switch output mode
         outputMode++;
         // Check if max was reached, ignore last two modes (only available over uart)
-        if (outputMode == NUM_OF_MODES - 2) {
+        if (outputMode >= NUM_OF_MODES - 2) {
             outputMode = 0;
         }
 
@@ -168,8 +181,6 @@ void loop()
         // Do initializations for a new output mode here if necessary
         initializer_functions[outputMode]();
     }
-
-    updateAudio();
 
     // Call your output mode in this switch
     output_functions[outputMode]();
@@ -188,14 +199,14 @@ void serialEvent()
             // Buffer is full - discard characters until CR is received
             return;
         } else if (inChar == '\r') {
-            outputMode = 6; // switch output to outputShiftUART
+            outputMode = NUM_OF_MODES - 1; // switch output to outputShiftUART
             // if the incoming character is a CR, set a flag so the main loop can
             // do something about it:
             uartInputBuffer[index] = '\0';
             index = 0;
             uartReceiveCompleteFlag = true;
         } else if (inChar == '\t') {
-            outputMode = 5; // switch output to outputShiftUART
+            outputMode = NUM_OF_MODES - 2; // switch output to outputGraphicsUART
             // if the incoming character is a TAB, set a flag so the main loop can
             // do something about it:
             uartInputBuffer[index] = '\0';
