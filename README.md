@@ -1,3 +1,5 @@
+Dieses Projekt hat eine neue Heimat bei Codeberg: [https://codeberg.org/casartar/MacherDaachBadgeFirmware](https://codeberg.org/casartar/MacherDaachBadgeFirmware)
+
 ![](Pictures/Badge-2026.jpg)
 
 # Bedienung der Macherdaach-Badge
